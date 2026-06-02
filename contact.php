@@ -12,7 +12,8 @@ require __DIR__ . '/includes/header.php';
   <section class="section contact-panel">
     <article>
       <h2>Email</h2>
-      <p>hello@plgkids.com</p>
+      <p>gaurish@icarryu.com</p>
+      <p>CC: info@divvyupandgrow.com, divvyupandgrow@gmail.com</p>
     </article>
     <article>
       <h2>Parent support</h2>

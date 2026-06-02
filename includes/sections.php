@@ -183,7 +183,7 @@ function journey_section() { ?>
     <div class="section-heading reveal">
       <div>
         <p class="eyebrow">Learning journey</p>
-        <h2>100+ Structured Lessons That Grow With Your Child</h2>
+        <h2>100+ Lessons Added Every Week. More Than 5000 Lessons Already.</h2>
       </div>
     </div>
     <div class="journey-track reveal">
@@ -238,7 +238,7 @@ function final_cta_section() { ?>
       <h2>Turn Screen Time Into Speaking Time</h2>
       <p>Help your child listen, speak, answer, repeat, and build confidence with structured daily practice.</p>
       <div class="hero-actions">
-        <a class="button primary" href="contact.php">Contact PLG Kids</a>
+        <a class="button primary" href="mailto:gaurish@icarryu.com?cc=info@divvyupandgrow.com,divvyupandgrow@gmail.com&amp;subject=PLG%20Kids%20Inquiry">Contact PLG Kids</a>
         <a class="button secondary" href="lessons.php">Build Speaking Confidence</a>
       </div>
     </div>

@@ -27,6 +27,8 @@ import {
 import './styles.css';
 
 const asset = (name) => `/assets/${name}.webp`;
+const contactMailto =
+  'mailto:gaurish@icarryu.com?cc=info@divvyupandgrow.com,divvyupandgrow@gmail.com&subject=PLG%20Kids%20Inquiry';
 
 const navLinks = [
   ['Home', '#home'],
@@ -386,7 +388,7 @@ function Journey() {
     <section className="section journey">
       <div className="section-heading reveal">
         <p className="eyebrow">Learning journey</p>
-        <h2>100+ Structured Lessons That Grow With Your Child</h2>
+        <h2>100+ Lessons Added Every Week. More Than 5000 Lessons Already.</h2>
       </div>
       <div className="journey-track reveal">
         {steps.map(([label, Icon]) => (
@@ -502,7 +504,7 @@ function FinalCta() {
         <h2>Turn Screen Time Into Speaking Time</h2>
         <p>Help your child listen, speak, answer, repeat, and build confidence with structured daily practice.</p>
         <div className="hero-actions">
-          <a className="button primary" href="mailto:hello@plgkids.com">
+          <a className="button primary" href={contactMailto}>
             <Mail size={18} /> Contact PLG Kids
           </a>
           <a className="button secondary" href="#lessons">
@@ -540,7 +542,7 @@ function PageContent({ page }) {
       {page === 'dashboard' && <Parents />}
       {page === 'contact' && (
         <section className="section contact-panel">
-          <article><Mail size={24} /><h2>Email</h2><p>hello@plgkids.com</p></article>
+          <article><Mail size={24} /><h2>Email</h2><p>gaurish@icarryu.com</p><p>CC: info@divvyupandgrow.com, divvyupandgrow@gmail.com</p></article>
           <article><Phone size={24} /><h2>Parent support</h2><p>Share your child’s age, learning needs, and preferred plan.</p></article>
         </section>
       )}
