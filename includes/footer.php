@@ -13,8 +13,9 @@
         <a href="pricing.php">Pricing</a>
         <a href="dashboard.php">Parent Dashboard</a>
         <a href="contact.php">Contact</a>
-        <a href="privacy.php">Privacy Policy</a>
-        <a href="terms.php">Terms</a>
+        <a href="privacy-policy.php">Privacy Policy</a>
+        <a href="terms-of-service.php">Terms of Service</a>
+        <a href="refund-policy.php">Refund Policy</a>
       </nav>
     </footer>
     <script>

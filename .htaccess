@@ -10,4 +10,10 @@ DirectoryIndex index.php index.html
   RewriteRule ^contact\.html$ contact.php [R=301,L]
   RewriteRule ^privacy\.html$ privacy.php [R=301,L]
   RewriteRule ^terms\.html$ terms.php [R=301,L]
+  RewriteRule ^privacy-policy/?$ privacy-policy.php [L]
+  RewriteRule ^terms-of-service/?$ terms-of-service.php [L]
+  RewriteRule ^refund-policy/?$ refund-policy.php [L]
+  RewriteRule ^privacy-policy\.html$ privacy-policy.php [R=301,L]
+  RewriteRule ^terms-of-service\.html$ terms-of-service.php [R=301,L]
+  RewriteRule ^refund-policy\.html$ refund-policy.php [R=301,L]
 </IfModule>
