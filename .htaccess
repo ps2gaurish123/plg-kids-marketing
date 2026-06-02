@@ -1,0 +1,13 @@
+DirectoryIndex index.php index.html
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^features\.html$ features.php [R=301,L]
+  RewriteRule ^lessons\.html$ lessons.php [R=301,L]
+  RewriteRule ^pricing\.html$ pricing.php [R=301,L]
+  RewriteRule ^dashboard\.html$ dashboard.php [R=301,L]
+  RewriteRule ^about\.html$ about.php [R=301,L]
+  RewriteRule ^contact\.html$ contact.php [R=301,L]
+  RewriteRule ^privacy\.html$ privacy.php [R=301,L]
+  RewriteRule ^terms\.html$ terms.php [R=301,L]
+</IfModule>

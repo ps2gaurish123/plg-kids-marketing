@@ -1,0 +1,26 @@
+{
+  "name": "marketing-website-for-plg-kids",
+  "version": "1.0.0",
+  "description": "Premium marketing website for PLG Kids.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@vitejs/plugin-react": "^6.0.2",
+    "lucide-react": "^1.17.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "vite": "^8.0.14"
+  },
+  "devDependencies": {
+    "php-parser": "^3.6.0",
+    "sharp": "^0.34.5"
+  }
+}

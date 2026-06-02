@@ -1,0 +1,12 @@
+.vercel/
+node_modules/
+dist/
+
+*.log
+cloudflared-tunnel.*.log
+vite-dev.*.log
+
+# Original generated source images are kept locally; optimized deploy assets live in public/assets.
+*.jpeg
+*.jpg
+!public/assets/*.jpg
