@@ -531,7 +531,7 @@ function Pricing() {
             <strong>{price}</strong>
             <p>{note}</p>
             {items.map((item) => <span className="plan-item" key={item}><Check size={16} /> {item}</span>)}
-            <a className={index === 2 ? 'button primary' : 'button secondary'} href="#contact">
+            <a className={index === 2 ? 'button primary' : 'button secondary'} href="https://plg-kids.com">
               Start Learning
             </a>
           </article>
