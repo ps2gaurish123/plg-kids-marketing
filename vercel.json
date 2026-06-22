@@ -6,11 +6,11 @@
   "cleanUrls": true,
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "https://littlelearn-ai.vercel.app/api/$1"
+      "source": "/api/:path*",
+      "destination": "https://littlelearn-ai.vercel.app/api/:path*"
     },
     {
-      "source": "/products/(.*)",
+      "source": "/products/:path*",
       "destination": "/products/index.html"
     }
   ]
