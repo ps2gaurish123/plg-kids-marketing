@@ -1,0 +1,1654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Parts of a Plant - 3D Learning</title>
+  <style>
+    :root {
+      --sky: #bdeeff;
+      --panel: rgba(255, 255, 255, 0.92);
+      --ink: #17334d;
+      --green: #2fa85e;
+      --leaf: #43c86c;
+      --soil: #8b5b34;
+      --water: #189be8;
+      --sun: #ffbf36;
+      --pink: #ff6fae;
+      --cream: #fff8dc;
+      --shadow: 0 12px 28px rgba(34, 74, 102, 0.18);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      overflow: hidden;
+      font-family: "Trebuchet MS", Arial, sans-serif;
+      color: var(--ink);
+      background: var(--sky);
+    }
+
+    #app {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      background:
+        radial-gradient(circle at 82% 16%, rgba(255, 220, 93, 0.5) 0 9%, transparent 10%),
+        linear-gradient(#bdeeff 0%, #d9f7ff 58%, #83d27b 58%, #66bd63 100%);
+    }
+
+    #scene {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      touch-action: none;
+    }
+
+    .topbar {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    .title {
+      pointer-events: auto;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      border: 2px solid rgba(255, 255, 255, 0.75);
+      border-radius: 8px;
+      padding: 10px 14px;
+      min-width: 0;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(18px, 3.8vw, 30px);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin-top: 5px;
+      font-size: clamp(12px, 2.3vw, 15px);
+      color: #40627e;
+    }
+
+    .mode-tabs {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding: 6px;
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      pointer-events: auto;
+      max-width: min(680px, 62vw);
+    }
+
+    button {
+      appearance: none;
+      border: 0;
+      border-radius: 8px;
+      min-height: 44px;
+      min-width: 44px;
+      padding: 10px 12px;
+      background: #ffffff;
+      color: var(--ink);
+      font-weight: 800;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.08);
+      transition: transform 120ms ease, background 120ms ease;
+      white-space: nowrap;
+    }
+
+    button:hover, button:focus-visible {
+      transform: translateY(-1px);
+      outline: 3px solid rgba(24, 155, 232, 0.35);
+    }
+
+    button.active {
+      background: #ffe56b;
+      color: #573c00;
+    }
+
+    .side-panel {
+      position: absolute;
+      left: 12px;
+      bottom: 12px;
+      width: min(360px, calc(100vw - 24px));
+      display: grid;
+      gap: 10px;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    .card {
+      pointer-events: auto;
+      background: var(--panel);
+      border: 2px solid rgba(255, 255, 255, 0.8);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 12px;
+    }
+
+    .info-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .part-icon {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: #e9f8ff;
+      font-size: 28px;
+      flex: 0 0 auto;
+    }
+
+    .part-name {
+      font-size: 24px;
+      font-weight: 900;
+      line-height: 1.05;
+    }
+
+    .part-text {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.35;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .control-btn {
+      font-size: 13px;
+      padding: 9px 8px;
+      background: #f7fbff;
+    }
+
+    .quiz {
+      position: absolute;
+      right: 12px;
+      bottom: 12px;
+      width: min(360px, calc(100vw - 24px));
+      z-index: 3;
+    }
+
+    .quiz h2 {
+      font-size: 20px;
+      margin: 0 0 8px;
+      letter-spacing: 0;
+    }
+
+    .quiz-question {
+      margin: 0 0 10px;
+      font-size: 15px;
+      font-weight: 800;
+      line-height: 1.25;
+    }
+
+    .quiz-options {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .quiz-options button {
+      min-width: 0;
+      white-space: normal;
+      font-size: 13px;
+      padding: 9px 6px;
+    }
+
+    .feedback {
+      min-height: 22px;
+      margin-top: 8px;
+      font-weight: 900;
+      color: #197c43;
+    }
+
+    .label {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.94);
+      border: 2px solid rgba(23, 51, 77, 0.12);
+      box-shadow: 0 6px 14px rgba(30, 70, 96, 0.16);
+      font-size: 14px;
+      font-weight: 900;
+      cursor: pointer;
+      user-select: none;
+      pointer-events: auto;
+      min-width: 58px;
+      text-align: center;
+    }
+
+    .label.active {
+      background: #ffe56b;
+      border-color: #ffb22e;
+    }
+
+    .label.editing {
+      cursor: move;
+      outline: 3px solid rgba(24, 155, 232, 0.5);
+      z-index: 4;
+    }
+
+    .label.hidden {
+      display: none;
+    }
+
+    .system-marker {
+      position: absolute;
+      left: clamp(14px, 10vw, 180px);
+      z-index: 2;
+      display: grid;
+      grid-template-columns: minmax(58px, auto) 1fr;
+      align-items: center;
+      gap: 10px;
+      pointer-events: none;
+      color: #142337;
+      font-weight: 900;
+      letter-spacing: 0;
+      text-shadow: 0 2px 0 rgba(255, 255, 255, 0.8);
+    }
+
+    .system-marker.editing {
+      pointer-events: auto;
+      cursor: move;
+      outline: 3px solid rgba(24, 155, 232, 0.38);
+      border-radius: 8px;
+    }
+
+    .system-marker.active-marker {
+      outline-color: rgba(255, 178, 46, 0.85);
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .system-marker.shoot {
+      top: clamp(132px, 18vh, 188px);
+      height: clamp(260px, 42vh, 410px);
+    }
+
+    .system-marker.root-system {
+      top: clamp(442px, 63vh, 620px);
+      height: clamp(120px, 21vh, 210px);
+    }
+
+    .system-name {
+      font-size: 21px;
+      line-height: 1.05;
+    }
+
+    .bracket {
+      width: clamp(46px, 11vw, 150px);
+      height: 100%;
+      border-left: 2px solid rgba(20, 35, 55, 0.72);
+      border-top: 2px solid rgba(20, 35, 55, 0.72);
+      border-bottom: 2px solid rgba(20, 35, 55, 0.72);
+    }
+
+    .toast {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: min(330px, calc(100vw - 32px));
+      transform: translate(-50%, -50%);
+      background: #fff;
+      border: 3px solid #ffe56b;
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(23, 51, 77, 0.25);
+      padding: 16px;
+      z-index: 5;
+      display: none;
+    }
+
+    .toast.show {
+      display: block;
+      animation: pop 180ms ease-out;
+    }
+
+    .loading-model {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 3;
+      padding: 12px 16px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: var(--shadow);
+      font-weight: 900;
+      color: var(--ink);
+      pointer-events: none;
+    }
+
+    .loading-model.hidden {
+      display: none;
+    }
+
+    .toast-title {
+      margin: 0 0 8px;
+      font-size: 24px;
+      font-weight: 900;
+    }
+
+    .toast-text {
+      margin: 0;
+      font-size: 17px;
+      line-height: 1.35;
+    }
+
+    .toast button {
+      margin-top: 12px;
+      width: 100%;
+      background: #eafff1;
+    }
+
+    @keyframes pop {
+      from { transform: translate(-50%, -48%) scale(0.96); opacity: 0; }
+      to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+
+    @media (max-width: 860px) {
+      html, body { overflow: auto; }
+
+      #app {
+        min-height: 100vh;
+        height: 100svh;
+        overflow: hidden;
+      }
+
+      .topbar {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .mode-tabs {
+        max-width: none;
+        width: 100%;
+      }
+
+      .side-panel {
+        bottom: 146px;
+      }
+
+      .quiz {
+        left: 12px;
+        right: 12px;
+        width: auto;
+      }
+
+      .controls {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 6px;
+      }
+
+      .control-btn {
+        min-width: 0;
+        min-height: 38px;
+        padding: 7px 4px;
+        font-size: 11px;
+      }
+
+      .label {
+        font-size: 13px;
+        padding: 7px 8px;
+      }
+
+      .system-marker {
+        display: none;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .title {
+        padding: 9px 10px;
+      }
+
+      .side-panel {
+        bottom: 150px;
+      }
+
+      .card {
+        padding: 8px;
+      }
+
+      .info-head {
+        margin-bottom: 6px;
+      }
+
+      .part-name {
+        font-size: 18px;
+      }
+
+      .part-text {
+        font-size: 13px;
+        line-height: 1.25;
+      }
+
+      .part-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 22px;
+      }
+
+      .quiz {
+        bottom: 8px;
+      }
+
+      .quiz h2 {
+        font-size: 16px;
+        margin-bottom: 5px;
+      }
+
+      .quiz-question {
+        font-size: 12px;
+        margin-bottom: 6px;
+      }
+
+      .quiz-options {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 6px;
+      }
+
+      .quiz-options button {
+        min-height: 36px;
+        font-size: 11px;
+      }
+
+      .topbar {
+        gap: 6px;
+      }
+
+      .mode-tabs {
+        padding: 5px;
+      }
+
+      .mode-tabs button {
+        min-height: 38px;
+        padding: 8px 9px;
+        font-size: 12px;
+      }
+    }
+
+    @media (max-width: 430px) {
+      .side-panel {
+        bottom: 136px;
+      }
+
+      .subtitle {
+        display: none;
+      }
+
+      .info-head {
+        gap: 8px;
+      }
+
+      .controls {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+      }
+
+      .control-btn {
+        font-size: 10px;
+      }
+
+      .label {
+        font-size: 12px;
+        min-width: 50px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main id="app" aria-label="3D Parts of a Plant learning app">
+    <canvas id="scene"></canvas>
+    <div class="system-marker shoot" data-marker="shoot" aria-hidden="true">
+      <div class="system-name">Shoot<br>system</div>
+      <div class="bracket"></div>
+    </div>
+    <div class="system-marker root-system" data-marker="rootSystem" aria-hidden="true">
+      <div class="system-name">Root<br>system</div>
+      <div class="bracket"></div>
+    </div>
+
+    <section class="topbar">
+      <div class="title">
+        <h1>Parts of a Plant</h1>
+        <div class="subtitle">Tap the plant parts to learn what they do.</div>
+      </div>
+      <nav class="mode-tabs" aria-label="Learning modes">
+        <button class="mode-btn" data-mode="full">Full Plant</button>
+        <button class="mode-btn" data-mode="underground">Underground</button>
+        <button class="mode-btn active" data-mode="water">Water Flow</button>
+        <button class="mode-btn" data-mode="labels">Labels</button>
+      </nav>
+    </section>
+
+    <section class="side-panel">
+      <div class="card" aria-live="polite">
+        <div class="info-head">
+          <div class="part-icon" id="partIcon" aria-hidden="true">🌱</div>
+          <div class="part-name" id="partName">Choose a Part</div>
+        </div>
+        <p class="part-text" id="partText">Click the roots, stem, leaves, flower, fruit, seed, soil, water, or sun.</p>
+      </div>
+      <div class="card controls" aria-label="Scene controls">
+        <button class="control-btn" id="playPause">Pause</button>
+        <button class="control-btn" id="resetView">Reset</button>
+        <button class="control-btn" id="rotateView">Rotate</button>
+        <button class="control-btn" id="zoomIn">Zoom +</button>
+        <button class="control-btn" id="zoomOut">Zoom -</button>
+      </div>
+    </section>
+
+    <section class="quiz card" aria-label="Plant quiz">
+      <h2>Quick Quiz</h2>
+      <p class="quiz-question" id="quizQuestion"></p>
+      <div class="quiz-options" id="quizOptions"></div>
+      <div class="feedback" id="quizFeedback"></div>
+    </section>
+
+    <div class="toast" id="popup" role="dialog" aria-modal="false" aria-labelledby="popupTitle">
+      <div class="toast-title" id="popupTitle"></div>
+      <p class="toast-text" id="popupText"></p>
+      <button id="closePopup">OK</button>
+    </div>
+    <div class="loading-model" id="modelLoading">Loading 3D plant...</div>
+  </main>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+  <script type="module">
+    import * as THREE from "three";
+    import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+
+    /*
+      Free CC0 GLB assets used in this lesson:
+      - Flowers by Quaternius, Poly Pizza, CC0 1.0
+      - Apple Green by Quaternius, Poly Pizza, CC0 1.0
+      - Grass by Quaternius, Poly Pizza, CC0 1.0
+      - Watering Can by CreativeTrio, Poly Pizza, CC0 1.0
+      - Big Leaf Plant by reyshapes, Poly Pizza, CC0 1.0
+      - Houseplant by Quaternius, Poly Pizza, CC0 1.0
+      - Corn Seed by apelab, Poly Pizza, CC-BY 3.0
+      - Sun by Poly by Google, Poly Pizza, CC-BY 3.0
+      Source pages:
+      https://poly.pizza/m/NBUxHir6FJ
+      https://poly.pizza/m/3VXWnjDOEw
+      https://poly.pizza/m/UGTOzcO3P2
+      https://poly.pizza/m/b2R90QehIt
+      https://poly.pizza/m/aKIm5k6l5F
+      https://poly.pizza/m/bfLOqIV5uP
+      https://poly.pizza/m/2wLZeYBSfsH
+      https://poly.pizza/m/8atTd-V-X7i
+    */
+
+    const canvas = document.getElementById("scene");
+    const scene = new THREE.Scene();
+    scene.background = null;
+
+    const camera = new THREE.PerspectiveCamera(46, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(0, 3.1, 9.2);
+
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
+
+    const root = new THREE.Group();
+    scene.add(root);
+
+    const raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2();
+    const labelLayer = document.getElementById("app");
+
+    let selectedPart = null;
+    let labelsVisible = true;
+    let playing = true;
+    let autoRotate = false;
+    let mode = "water";
+    let cameraDistance = 9.2;
+    let dragStart = null;
+    let labelEditMode = false;
+    let labelDrag = null;
+    let markerDrag = null;
+    let selectedMarker = "shoot";
+    let targetRotation = 0;
+    const labelStorageKey = "plantParts3dLabelPositions";
+    const markerStorageKey = "plantParts3dSystemMarkerPositions";
+    let labelPositions = {};
+    let markerPositions = {};
+
+    try {
+      if (new URLSearchParams(window.location.search).has("fresh")) {
+        localStorage.removeItem(labelStorageKey);
+        localStorage.removeItem(markerStorageKey);
+      }
+      labelPositions = JSON.parse(localStorage.getItem(labelStorageKey) || "{}");
+    } catch {
+      labelPositions = {};
+    }
+
+    try {
+      markerPositions = JSON.parse(localStorage.getItem(markerStorageKey) || "{}");
+    } catch {
+      markerPositions = {};
+    }
+
+    const parts = {
+      roots: { name: "Roots", icon: "🌱", text: "Roots hold the plant in the soil and take in water.", color: 0xd9b07c },
+      stem: { name: "Stem", icon: "🟢", text: "The stem carries water and holds the plant up.", color: 0x39ad52 },
+      leaves: { name: "Leaves", icon: "🍃", text: "Leaves help the plant make food from sunlight.", color: 0x43c86c },
+      flower: { name: "Flower", icon: "🌸", text: "The flower helps the plant make seeds.", color: 0xff6fae },
+      fruit: { name: "Fruit", icon: "🍎", text: "Fruit protects the seeds.", color: 0xff5b55 },
+      seed: { name: "Seed", icon: "●", text: "A seed can grow into a new plant.", color: 0x6d3b17 },
+      soil: { name: "Soil", icon: "▰", text: "Soil gives support and holds water.", color: 0x8b5b34 },
+      water: { name: "Water", icon: "💧", text: "Water helps the plant stay alive.", color: 0x189be8 },
+      sun: { name: "Sun", icon: "☀", text: "Sunlight helps the plant grow.", color: 0xffbf36 }
+    };
+
+    const clickables = [];
+    const labels = {};
+    const animatedLeaves = [];
+    const waterDots = [];
+    const waterArrows = [];
+    const sunRays = [];
+    const highlightRing = new THREE.Group();
+    root.add(highlightRing);
+
+    const materialCache = new Map();
+    const loader = new GLTFLoader();
+    const assetBase = "assets/";
+    const useLocalPlantFile = true;
+    let fallbackFlowerGroup = null;
+    let fallbackFruit = null;
+    let fallbackWateringCan = null;
+    let fallbackSun = null;
+    const fallbackSeeds = [];
+    const customPlantVisuals = [];
+    let localPlantModel = null;
+    function mat(color, roughness = 0.62, metalness = 0.02) {
+      const key = `${color}-${roughness}-${metalness}`;
+      if (!materialCache.has(key)) {
+        materialCache.set(key, new THREE.MeshStandardMaterial({ color, roughness, metalness }));
+      }
+      return materialCache.get(key);
+    }
+
+    function addClickable(mesh, key) {
+      mesh.userData.partKey = key;
+      clickables.push(mesh);
+      return mesh;
+    }
+
+    function registerClickableModel(object, key) {
+      object.traverse((child) => {
+        if (child.isMesh) {
+          child.userData.partKey = key;
+          child.castShadow = true;
+          child.receiveShadow = true;
+          clickables.push(child);
+        }
+      });
+    }
+
+    function placeModel(object, options) {
+      const box = new THREE.Box3().setFromObject(object);
+      const size = new THREE.Vector3();
+      const center = new THREE.Vector3();
+      box.getSize(size);
+      box.getCenter(center);
+      object.position.sub(center);
+      const longest = Math.max(size.x, size.y, size.z) || 1;
+      const scale = (options.size || 1) / longest;
+      object.scale.setScalar(scale);
+      const fitted = new THREE.Box3().setFromObject(object);
+      const fittedSize = new THREE.Vector3();
+      const fittedCenter = new THREE.Vector3();
+      fitted.getSize(fittedSize);
+      fitted.getCenter(fittedCenter);
+      object.position.sub(fittedCenter);
+      if (options.ground) {
+        object.position.y += fittedSize.y * 0.5;
+      }
+      object.position.add(options.position || new THREE.Vector3());
+      if (options.rotation) object.rotation.set(options.rotation.x || 0, options.rotation.y || 0, options.rotation.z || 0);
+      return object;
+    }
+
+    function loadGLBAsset(fileName, key, options = {}) {
+      loader.load(
+        assetBase + fileName,
+        (gltf) => {
+          const model = gltf.scene;
+          registerClickableModel(model, key);
+          placeModel(model, options);
+          root.add(model);
+          if (options.onLoaded) options.onLoaded(model);
+        },
+        undefined,
+        () => {
+          if (options.onError) options.onError();
+        }
+      );
+    }
+
+    function addPlantVisual(object) {
+      customPlantVisuals.push(object);
+      root.add(object);
+      return object;
+    }
+
+    function hideCustomPlantVisuals() {
+      customPlantVisuals.forEach((object) => {
+        object.visible = false;
+      });
+    }
+
+    function showCustomPlantVisuals() {
+      customPlantVisuals.forEach((object) => {
+        object.visible = true;
+      });
+    }
+
+    function setModelLoading(visible, text = "Loading 3D plant...") {
+      const el = document.getElementById("modelLoading");
+      if (!el) return;
+      el.textContent = text;
+      el.classList.toggle("hidden", !visible);
+    }
+
+    const localPlantCandidates = [
+      "plant/Hitem3d-1781766924945.glb"
+    ];
+
+    function loadLocalPlantModel(candidateIndex = 0) {
+      hideCustomPlantVisuals();
+      setModelLoading(true);
+      const modelUrl = localPlantCandidates[candidateIndex];
+      const requestUrl = `${modelUrl}?v=${Date.now()}`;
+      loader.load(
+        requestUrl,
+        (gltf) => {
+          localPlantModel = gltf.scene;
+          registerClickableModel(localPlantModel, "stem");
+          placeModel(localPlantModel, {
+            size: 5.2,
+            position: new THREE.Vector3(0, 0.12, 0.05),
+            rotation: new THREE.Vector3(0, Math.PI, 0),
+            ground: true
+          });
+          localPlantModel.traverse((child) => {
+            if (child.isMesh) {
+              child.castShadow = true;
+              child.receiveShadow = true;
+            }
+          });
+          root.add(localPlantModel);
+          hideCustomPlantVisuals();
+          setModelLoading(false);
+          window.__plantModelStatus = { loaded: true, url: modelUrl };
+        },
+        undefined,
+        () => {
+          if (candidateIndex + 1 < localPlantCandidates.length) {
+            loadLocalPlantModel(candidateIndex + 1);
+            return;
+          }
+          setModelLoading(true, "Plant GLB file is missing.");
+          window.__plantModelStatus = { loaded: false, url: modelUrl };
+        }
+      );
+    }
+
+    function roundedSphere(radius, color, scale = [1, 1, 1]) {
+      const mesh = new THREE.Mesh(
+        new THREE.SphereGeometry(radius, 32, 20),
+        mat(color)
+      );
+      mesh.scale.set(scale[0], scale[1], scale[2]);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      return mesh;
+    }
+
+    function cylinder(radiusTop, radiusBottom, height, color, radial = 24) {
+      const mesh = new THREE.Mesh(
+        new THREE.CylinderGeometry(radiusTop, radiusBottom, height, radial, 1),
+        mat(color)
+      );
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      return mesh;
+    }
+
+    function rootSegment(from, to, radius = 0.045) {
+      const direction = new THREE.Vector3().subVectors(to, from);
+      const length = direction.length();
+      const mesh = addClickable(new THREE.Mesh(
+        new THREE.CylinderGeometry(radius * 0.55, radius, length, 14),
+        new THREE.MeshStandardMaterial({
+          color: parts.roots.color,
+          roughness: 0.58,
+          emissive: 0xffcf8a,
+          emissiveIntensity: 0.18,
+          depthTest: false
+        })
+      ), "roots");
+      mesh.position.copy(from).add(to).multiplyScalar(0.5);
+      mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.normalize());
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      mesh.renderOrder = 6;
+      return mesh;
+    }
+
+    function createVisibleRootDisplay() {
+      const visibleRoots = new THREE.Group();
+      const rootPaths = [
+        [[0.02, 0.24, 0.8], [0.0, 0.22, 1.78], 0.075],
+        [[0.0, 0.23, 1.12], [-0.72, 0.22, 1.72], 0.052],
+        [[0.0, 0.23, 1.12], [0.72, 0.22, 1.72], 0.052],
+        [[-0.36, 0.225, 1.44], [-1.08, 0.22, 1.94], 0.036],
+        [[0.36, 0.225, 1.44], [1.08, 0.22, 1.94], 0.036],
+        [[-0.12, 0.225, 1.58], [-0.42, 0.22, 2.12], 0.032],
+        [[0.12, 0.225, 1.58], [0.42, 0.22, 2.12], 0.032]
+      ];
+      rootPaths.forEach(([from, to, radius]) => {
+        visibleRoots.add(rootSegment(new THREE.Vector3(...from), new THREE.Vector3(...to), radius));
+      });
+      const glow = addClickable(new THREE.Mesh(
+        new THREE.TorusGeometry(0.82, 0.04, 10, 64),
+        new THREE.MeshBasicMaterial({ color: 0xffd36b, transparent: true, opacity: 0.55, depthTest: false })
+      ), "roots");
+      glow.position.set(0, 0.23, 1.62);
+      glow.rotation.x = Math.PI / 2;
+      glow.renderOrder = 5;
+      visibleRoots.add(glow);
+      root.add(visibleRoots);
+    }
+
+    function createGround() {
+      const ground = new THREE.Mesh(
+        new THREE.CylinderGeometry(5.3, 5.7, 0.35, 64),
+        mat(0x73c96b)
+      );
+      ground.position.y = -0.28;
+      ground.receiveShadow = true;
+      root.add(ground);
+
+      const soil = addClickable(new THREE.Mesh(
+        new THREE.CylinderGeometry(2.25, 2.42, 0.56, 64),
+        new THREE.MeshStandardMaterial({
+          color: parts.soil.color,
+          roughness: 0.7,
+          transparent: true,
+          opacity: 0.78
+        })
+      ), "soil");
+      soil.position.y = -0.08;
+      soil.receiveShadow = true;
+      root.add(soil);
+
+      for (let i = 0; i < 48; i++) {
+        const blade = new THREE.Mesh(
+          new THREE.ConeGeometry(0.035, 0.36 + Math.random() * 0.18, 6),
+          mat(i % 2 ? 0x52bf56 : 0x3ba64b)
+        );
+        const a = Math.random() * Math.PI * 2;
+        const r = 2.6 + Math.random() * 2.25;
+        blade.position.set(Math.cos(a) * r, 0.12, Math.sin(a) * r);
+        blade.rotation.z = (Math.random() - 0.5) * 0.7;
+        blade.rotation.y = a;
+        root.add(blade);
+      }
+    }
+
+    function createPlant() {
+      const stem = addClickable(cylinder(0.13, 0.18, 4.6, parts.stem.color), "stem");
+      stem.position.y = 2;
+      addPlantVisual(stem);
+
+      const stemCap = addClickable(roundedSphere(0.16, parts.stem.color, [1, 0.75, 1]), "stem");
+      stemCap.position.y = 4.33;
+      addPlantVisual(stemCap);
+
+      const rootGroup = new THREE.Group();
+      rootGroup.userData.partKey = "roots";
+      const mainRoot = addClickable(cylinder(0.07, 0.13, 1.5, parts.roots.color, 16), "roots");
+      mainRoot.position.set(0, -0.62, 0.64);
+      mainRoot.rotation.z = Math.PI;
+      rootGroup.add(mainRoot);
+      for (let i = 0; i < 8; i++) {
+        const branch = addClickable(cylinder(0.025, 0.065, 1.1, parts.roots.color, 12), "roots");
+        const angle = (i / 8) * Math.PI * 2;
+        branch.position.set(Math.cos(angle) * 0.4, -0.55, 0.64 + Math.sin(angle) * 0.24);
+        branch.rotation.z = 0.82 + (i % 2) * 0.32;
+        branch.rotation.y = -angle;
+        rootGroup.add(branch);
+      }
+      const rootWindow = addClickable(new THREE.Mesh(
+        new THREE.TorusGeometry(0.86, 0.045, 10, 64),
+        new THREE.MeshBasicMaterial({ color: 0xffe0a1, transparent: true, opacity: 0.85 })
+      ), "roots");
+      rootWindow.position.set(0, -0.72, 0.9);
+      rootWindow.rotation.x = Math.PI / 2;
+      rootGroup.add(rootWindow);
+      addPlantVisual(rootGroup);
+
+      const leafData = [
+        [-0.9, 1.7, 0.03, 0.4],
+        [0.88, 2.05, 0.04, -0.35],
+        [-1.05, 2.65, 0.02, 0.58],
+        [1.08, 3.0, 0.06, -0.52],
+        [-0.78, 3.45, 0.1, 0.38]
+      ];
+      leafData.forEach((p, index) => {
+        const leaf = addClickable(roundedSphere(0.45, parts.leaves.color, [1.55, 0.34, 0.72]), "leaves");
+        leaf.position.set(p[0], p[1], p[2]);
+        leaf.rotation.z = p[3];
+        leaf.rotation.y = p[0] > 0 ? -0.25 : 0.25;
+        leaf.userData.baseY = p[1];
+        leaf.userData.phase = index * 0.9;
+        animatedLeaves.push(leaf);
+        addPlantVisual(leaf);
+
+        const vein = cylinder(0.014, 0.014, 0.75, 0x2d9148, 8);
+        vein.position.copy(leaf.position);
+        vein.rotation.z = leaf.rotation.z + Math.PI / 2;
+        vein.rotation.y = leaf.rotation.y;
+        addPlantVisual(vein);
+      });
+
+      const flowerGroup = new THREE.Group();
+      flowerGroup.position.set(0, 4.78, 0);
+      flowerGroup.userData.partKey = "flower";
+      fallbackFlowerGroup = flowerGroup;
+      for (let i = 0; i < 7; i++) {
+        const petal = addClickable(roundedSphere(0.23, parts.flower.color, [0.78, 1.22, 0.22]), "flower");
+        const a = (i / 7) * Math.PI * 2;
+        petal.position.set(Math.cos(a) * 0.34, Math.sin(a) * 0.34, 0);
+        petal.rotation.z = a;
+        flowerGroup.add(petal);
+      }
+      const middle = addClickable(roundedSphere(0.18, 0xffd748, [1, 1, 0.45]), "flower");
+      flowerGroup.add(middle);
+      addPlantVisual(flowerGroup);
+
+      const fruit = addClickable(roundedSphere(0.34, parts.fruit.color, [1, 1.12, 1]), "fruit");
+      fruit.position.set(0.78, 3.68, 0.08);
+      fallbackFruit = fruit;
+      addPlantVisual(fruit);
+      const fruitStem = cylinder(0.035, 0.035, 0.55, 0x2d9148, 12);
+      fruitStem.position.set(0.42, 3.87, 0.05);
+      fruitStem.rotation.z = -0.9;
+      addPlantVisual(fruitStem);
+
+      const seedPositions = [
+        [0.7, 3.7, 0.4],
+        [0.86, 3.82, 0.39],
+        [0.9, 3.55, 0.4],
+        [1.28, 3.28, 0.18],
+        [1.48, 3.16, 0.2]
+      ];
+      seedPositions.forEach((p) => {
+        const seed = addClickable(roundedSphere(0.075, parts.seed.color, [0.75, 1.25, 0.55]), "seed");
+        seed.position.set(p[0], p[1], p[2]);
+        fallbackSeeds.push(seed);
+        addPlantVisual(seed);
+      });
+    }
+
+    function createWaterAndSun() {
+      const sun = addClickable(roundedSphere(0.68, parts.sun.color, [1, 1, 0.2]), "sun");
+      sun.position.set(3.7, 5.25, -2.7);
+      fallbackSun = sun;
+      root.add(sun);
+      for (let i = 0; i < 10; i++) {
+        const ray = cylinder(0.025, 0.025, 0.55, 0xffdf69, 8);
+        const a = (i / 10) * Math.PI * 2;
+        ray.position.set(3.7 + Math.cos(a) * 0.92, 5.25 + Math.sin(a) * 0.92, -2.7);
+        ray.rotation.z = a + Math.PI / 2;
+        sunRays.push(ray);
+        root.add(ray);
+      }
+
+      const can = new THREE.Group();
+      fallbackWateringCan = can;
+      can.position.set(-3.0, 0.72, 0.1);
+      const body = roundedSphere(0.42, 0x7fc9ff, [1.24, 0.8, 0.8]);
+      can.add(body);
+      const spout = cylinder(0.06, 0.1, 0.9, 0x7fc9ff, 16);
+      spout.position.set(0.56, 0.15, 0);
+      spout.rotation.z = -1.03;
+      can.add(spout);
+      const handle = new THREE.Mesh(
+        new THREE.TorusGeometry(0.34, 0.045, 12, 32, Math.PI * 1.45),
+        mat(0x5cb7f3)
+      );
+      handle.position.set(-0.35, 0.05, 0);
+      handle.rotation.z = -0.9;
+      can.add(handle);
+      root.add(can);
+
+      for (let i = 0; i < 16; i++) {
+        const drop = addClickable(roundedSphere(0.075, parts.water.color, [0.8, 1.3, 0.8]), "water");
+        drop.material = new THREE.MeshStandardMaterial({
+          color: parts.water.color,
+          emissive: 0x0c75b7,
+          emissiveIntensity: 0.35,
+          roughness: 0.35
+        });
+        drop.userData.flowIndex = i / 16;
+        waterDots.push(drop);
+        root.add(drop);
+      }
+
+      [0.18, 0.36, 0.58, 0.78].forEach((t) => {
+        const arrow = addClickable(new THREE.Mesh(
+          new THREE.ConeGeometry(0.13, 0.34, 24),
+          new THREE.MeshStandardMaterial({
+            color: parts.water.color,
+            emissive: 0x0b8dcc,
+            emissiveIntensity: 0.35,
+            roughness: 0.35
+          })
+        ), "water");
+        arrow.position.copy(getFlowPoint(t));
+        arrow.rotation.z = t < 0.32 ? -0.85 : 0;
+        arrow.visible = false;
+        waterArrows.push(arrow);
+        root.add(arrow);
+      });
+    }
+
+    function createFreeAssetModels() {
+      loadGLBAsset("watering_can_creativetrio_cc0.glb", "water", {
+        size: 1.2,
+        position: new THREE.Vector3(-3.05, 0.62, 0.12),
+        rotation: new THREE.Vector3(0, -0.25, 0),
+        onLoaded: () => {
+          if (fallbackWateringCan) fallbackWateringCan.visible = false;
+        }
+      });
+
+      loadGLBAsset("sun_poly_google_ccby.glb", "sun", {
+        size: 1.65,
+        position: new THREE.Vector3(3.7, 5.25, -2.65),
+        rotation: new THREE.Vector3(0, 0.2, 0),
+        onLoaded: () => {
+          if (fallbackSun) fallbackSun.visible = false;
+        }
+      });
+
+      [
+        new THREE.Vector3(1.48, 2.15, 0.32),
+        new THREE.Vector3(1.72, 2.04, 0.34)
+      ].forEach((position, index) => {
+        loadGLBAsset("corn_seed_apelab_ccby.glb", "seed", {
+          size: 0.18,
+          position,
+          rotation: new THREE.Vector3(0.25, index * 0.6, -0.2)
+        });
+      });
+
+      const grassSpots = [
+        [-3.4, 0.04, -1.25, 0.9],
+        [3.15, 0.04, -1.05, 0.82],
+        [-3.05, 0.04, 1.35, 0.74],
+        [3.45, 0.04, 1.1, 0.86],
+        [0.0, 0.04, -3.05, 0.7],
+        [0.95, 0.04, 2.9, 0.68]
+      ];
+      grassSpots.forEach(([x, y, z, size], index) => {
+        loadGLBAsset("grass_quaternius_cc0.glb", "soil", {
+          size,
+          position: new THREE.Vector3(x, y, z),
+          rotation: new THREE.Vector3(0, index * 0.72, 0),
+          ground: true
+        });
+      });
+    }
+
+    function createLights() {
+      const ambient = new THREE.HemisphereLight(0xffffff, 0x83b66d, 1.75);
+      scene.add(ambient);
+      const key = new THREE.DirectionalLight(0xffffff, 2.2);
+      key.position.set(4, 7, 5);
+      key.castShadow = true;
+      key.shadow.mapSize.set(1024, 1024);
+      scene.add(key);
+    }
+
+    function createLabels() {
+      Object.keys(parts).forEach((key) => {
+        const el = document.createElement("button");
+        el.className = "label";
+        el.type = "button";
+        el.textContent = parts[key].name;
+        el.addEventListener("click", (event) => {
+          if (labelEditMode) {
+            event.preventDefault();
+            return;
+          }
+          selectPart(key, true);
+        });
+        el.addEventListener("pointerdown", (event) => startLabelDrag(event, key));
+        labelLayer.appendChild(el);
+        labels[key] = el;
+      });
+    }
+
+    const labelTargets = {
+      roots: new THREE.Vector3(0, 0.24, 1.05),
+      stem: new THREE.Vector3(0.42, 1.45, 0),
+      leaves: new THREE.Vector3(-1.55, 3.15, 0),
+      flower: new THREE.Vector3(0.42, 4.45, 0),
+      fruit: new THREE.Vector3(1.35, 2.9, 0),
+      seed: new THREE.Vector3(1.72, 2.25, 0.2),
+      soil: new THREE.Vector3(1.55, -0.25, 0),
+      water: new THREE.Vector3(-2.45, 1.35, 0),
+      sun: new THREE.Vector3(3.78, 5.95, -2.7)
+    };
+
+    function selectPart(key, showPopup) {
+      selectedPart = key;
+      const data = parts[key];
+      document.getElementById("partIcon").textContent = data.icon;
+      document.getElementById("partName").textContent = data.name;
+      document.getElementById("partText").textContent = data.text;
+      Object.entries(labels).forEach(([labelKey, el]) => el.classList.toggle("active", labelKey === key));
+      highlightRing.clear();
+      if (showPopup) {
+        document.getElementById("popupTitle").textContent = data.name;
+        document.getElementById("popupText").textContent = data.text;
+        document.getElementById("popup").classList.add("show");
+      }
+    }
+
+    function moveHighlight(key) {
+      highlightRing.clear();
+    }
+
+    function applyMode(nextMode) {
+      mode = nextMode;
+      document.querySelectorAll(".mode-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.mode === mode));
+      if (mode === "underground") {
+        camera.position.set(0, 1.1, cameraDistance);
+        selectPart("roots", false);
+      } else if (mode === "water") {
+        camera.position.set(0, 2.55, cameraDistance);
+        selectPart("water", false);
+      } else if (mode === "labels") {
+        labelsVisible = true;
+        camera.position.set(0, 3.0, cameraDistance);
+      } else {
+        camera.position.set(0, 3.1, cameraDistance);
+      }
+      updateLabelVisibility();
+    }
+
+    function updateLabelVisibility() {
+      Object.entries(labels).forEach(([key, el]) => {
+        const visibleForMode =
+          labelsVisible &&
+          (mode === "labels" ||
+          mode === "full" ||
+          (mode === "underground" && ["roots", "soil", "water"].includes(key)) ||
+          (mode === "water" && ["water", "roots", "stem", "leaves"].includes(key)));
+        el.classList.toggle("hidden", !visibleForMode);
+      });
+    }
+
+    function getFlowPoint(t) {
+      const points = [
+        new THREE.Vector3(-2.25, 0.86, 0.08),
+        new THREE.Vector3(-1.35, 0.28, 0.05),
+        new THREE.Vector3(-0.35, -0.75, 0.02),
+        new THREE.Vector3(0.0, 0.45, 0.02),
+        new THREE.Vector3(0.0, 2.6, 0.02),
+        new THREE.Vector3(0.0, 4.15, 0.02),
+        new THREE.Vector3(-0.95, 3.45, 0.05)
+      ];
+      const scaled = t * (points.length - 1);
+      const i = Math.min(points.length - 2, Math.floor(scaled));
+      const local = scaled - i;
+      return points[i].clone().lerp(points[i + 1], local);
+    }
+
+    function updateWaterDots(time) {
+      waterDots.forEach((dot, index) => {
+        const speed = mode === "water" ? 0.18 : 0.1;
+        const t = (dot.userData.flowIndex + time * speed) % 1;
+        dot.position.copy(getFlowPoint(t));
+        const pulse = 1 + Math.sin(time * 8 + index) * 0.18;
+        dot.scale.setScalar(mode === "water" ? pulse * 1.25 : pulse);
+        dot.visible = mode === "water" || index % 2 === 0;
+      });
+      waterArrows.forEach((arrow, index) => {
+        arrow.visible = mode === "water";
+        const pulse = 1 + Math.sin(time * 5 + index) * 0.12;
+        arrow.scale.setScalar(pulse);
+      });
+    }
+
+    function setLabelScreenPosition(key, xPercent, yPercent) {
+      const el = labels[key];
+      if (!el) return;
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      const x = Math.max(42, Math.min(w - 42, (xPercent / 100) * w));
+      const y = Math.max(24, Math.min(h - 24, (yPercent / 100) * h));
+      el.style.left = `${x}px`;
+      el.style.top = `${y}px`;
+    }
+
+    function scenePointToScreen(point) {
+      const pos = root.localToWorld(point.clone());
+      pos.project(camera);
+      return {
+        x: (pos.x * 0.5 + 0.5) * window.innerWidth,
+        y: (-pos.y * 0.5 + 0.5) * window.innerHeight
+      };
+    }
+
+    function placeSystemMarker(key, topPoint, bottomPoint, bracketEndPoint) {
+      const el = document.querySelector(`[data-marker="${key}"]`);
+      if (!el) return;
+      const top = scenePointToScreen(topPoint);
+      const bottom = scenePointToScreen(bottomPoint);
+      const end = scenePointToScreen(bracketEndPoint);
+      placeSystemMarkerOnScreen(key, top.y, bottom.y, end.x);
+    }
+
+    function placeSystemMarkerOnScreen(key, topY, bottomY, endX) {
+      const el = document.querySelector(`[data-marker="${key}"]`);
+      if (!el) return;
+      const padding = window.innerWidth <= 520 ? 10 : 16;
+      const minTop = window.innerWidth <= 520 ? 86 : 110;
+      const maxBottom = window.innerHeight - padding;
+      const markerTop = Math.max(minTop, Math.min(topY, bottomY));
+      const markerBottom = Math.min(maxBottom, Math.max(topY, bottomY));
+      const height = Math.max(56, markerBottom - markerTop);
+      const rectWidth = el.getBoundingClientRect().width || 190;
+      const left = Math.max(padding, Math.min(window.innerWidth - rectWidth - padding, endX - rectWidth));
+      el.style.left = `${left}px`;
+      el.style.top = `${markerTop}px`;
+      el.style.height = `${height}px`;
+    }
+
+    function updateSystemMarkers() {
+      const soilLineY = window.innerHeight * 0.58;
+      const shootTop = scenePointToScreen(new THREE.Vector3(0, 4.9, 0)).y;
+      const shootEnd = scenePointToScreen(new THREE.Vector3(-1.55, 2.55, 0)).x;
+      const rootEnd = scenePointToScreen(new THREE.Vector3(-0.65, -0.38, 1.1)).x;
+      placeSystemMarkerOnScreen("shoot", shootTop, soilLineY - 4, shootEnd);
+      placeSystemMarkerOnScreen("rootSystem", soilLineY + 10, window.innerHeight - 18, rootEnd);
+    }
+
+    function saveLabelPositions() {
+      localStorage.setItem(labelStorageKey, JSON.stringify(labelPositions));
+      localStorage.setItem(markerStorageKey, JSON.stringify(markerPositions));
+    }
+
+    function setLabelEditMode(enabled) {
+      labelEditMode = enabled;
+      Object.values(labels).forEach(el => el.classList.toggle("editing", enabled));
+      document.querySelectorAll(".system-marker").forEach(el => el.classList.toggle("editing", enabled));
+    }
+
+    function startLabelDrag(event, key) {
+      if (!labelEditMode) return;
+      event.preventDefault();
+      event.stopPropagation();
+      const rect = labels[key].getBoundingClientRect();
+      labelDrag = {
+        key,
+        offsetX: event.clientX - rect.left - rect.width / 2,
+        offsetY: event.clientY - rect.top - rect.height / 2
+      };
+      if (event.pointerId !== undefined && labels[key].setPointerCapture) {
+        labels[key].setPointerCapture(event.pointerId);
+      }
+    }
+
+    function moveLabelDrag(event) {
+      if (!labelDrag) return;
+      event.preventDefault();
+      const x = event.clientX - labelDrag.offsetX;
+      const y = event.clientY - labelDrag.offsetY;
+      labelPositions[labelDrag.key] = {
+        x: Number(((x / window.innerWidth) * 100).toFixed(2)),
+        y: Number(((y / window.innerHeight) * 100).toFixed(2))
+      };
+      setLabelScreenPosition(labelDrag.key, labelPositions[labelDrag.key].x, labelPositions[labelDrag.key].y);
+    }
+
+    function stopLabelDrag() {
+      if (!labelDrag) return;
+      saveLabelPositions();
+      labelDrag = null;
+    }
+
+    function setMarkerScreenPosition(key, xPercent, yPercent, heightVh) {
+      const el = document.querySelector(`[data-marker="${key}"]`);
+      if (!el) return;
+      const x = Math.max(0, Math.min(92, xPercent));
+      const y = Math.max(0, Math.min(86, yPercent));
+      el.style.left = `${x}vw`;
+      el.style.top = `${y}vh`;
+      if (heightVh !== undefined) {
+        el.style.height = `${Math.max(8, Math.min(86, heightVh))}vh`;
+      }
+    }
+
+    function applyMarkerPositions() {
+      Object.entries(markerPositions).forEach(([key, position]) => {
+        setMarkerScreenPosition(key, position.x, position.y, position.height);
+      });
+    }
+
+    function startMarkerDrag(event, key) {
+      if (!labelEditMode) return;
+      event.preventDefault();
+      event.stopPropagation();
+      const rect = event.currentTarget.getBoundingClientRect();
+      markerDrag = {
+        key,
+        offsetX: event.clientX - rect.left,
+        offsetY: event.clientY - rect.top
+      };
+      selectedMarker = key;
+      document.querySelectorAll(".system-marker").forEach(el => el.classList.toggle("active-marker", el.dataset.marker === key));
+      if (event.pointerId !== undefined && event.currentTarget.setPointerCapture) {
+        event.currentTarget.setPointerCapture(event.pointerId);
+      }
+    }
+
+    function moveMarkerDrag(event) {
+      if (!markerDrag) return;
+      event.preventDefault();
+      const x = ((event.clientX - markerDrag.offsetX) / window.innerWidth) * 100;
+      const y = ((event.clientY - markerDrag.offsetY) / window.innerHeight) * 100;
+      markerPositions[markerDrag.key] = {
+        x: Number(Math.max(0, Math.min(92, x)).toFixed(2)),
+        y: Number(Math.max(0, Math.min(86, y)).toFixed(2)),
+        height: markerPositions[markerDrag.key]?.height
+      };
+      setMarkerScreenPosition(markerDrag.key, markerPositions[markerDrag.key].x, markerPositions[markerDrag.key].y, markerPositions[markerDrag.key].height);
+    }
+
+    function stopMarkerDrag() {
+      if (!markerDrag) return;
+      saveLabelPositions();
+      markerDrag = null;
+    }
+
+    function resetLabelPositions() {
+      labelPositions = {};
+      markerPositions = {};
+      localStorage.removeItem(labelStorageKey);
+      localStorage.removeItem(markerStorageKey);
+      document.querySelectorAll(".system-marker").forEach(el => {
+        el.style.left = "";
+        el.style.top = "";
+        el.style.height = "";
+        el.classList.remove("active-marker");
+      });
+      updateLabels();
+    }
+
+    function getCurrentMarkerHeight(key) {
+      const el = document.querySelector(`[data-marker="${key}"]`);
+      if (!el) return 20;
+      return (el.getBoundingClientRect().height / window.innerHeight) * 100;
+    }
+
+    function resizeSelectedMarker(delta) {
+      const key = selectedMarker || "shoot";
+      const current = markerPositions[key]?.height ?? getCurrentMarkerHeight(key);
+      const height = Number(Math.max(8, Math.min(86, current + delta)).toFixed(2));
+      markerPositions[key] = {
+        x: markerPositions[key]?.x ?? Number(((document.querySelector(`[data-marker="${key}"]`).getBoundingClientRect().left / window.innerWidth) * 100).toFixed(2)),
+        y: markerPositions[key]?.y ?? Number(((document.querySelector(`[data-marker="${key}"]`).getBoundingClientRect().top / window.innerHeight) * 100).toFixed(2)),
+        height
+      };
+      setMarkerScreenPosition(key, markerPositions[key].x, markerPositions[key].y, height);
+      saveLabelPositions();
+    }
+
+    function updateLabels() {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      Object.entries(labels).forEach(([key, el]) => {
+        if (labelPositions[key]) {
+          setLabelScreenPosition(key, labelPositions[key].x, labelPositions[key].y);
+          return;
+        }
+        const pos = root.localToWorld(labelTargets[key].clone());
+        pos.project(camera);
+        const x = (pos.x * 0.5 + 0.5) * w;
+        const y = (-pos.y * 0.5 + 0.5) * h;
+        el.style.left = `${Math.max(42, Math.min(w - 42, x))}px`;
+        el.style.top = `${Math.max(24, Math.min(h - 24, y))}px`;
+      });
+      updateSystemMarkers();
+    }
+
+    function onPointerDown(event) {
+      dragStart = { x: event.clientX, y: event.clientY, rotation: targetRotation };
+    }
+
+    function onPointerMove(event) {
+      if (!dragStart) return;
+      const dx = event.clientX - dragStart.x;
+      targetRotation = dragStart.rotation + dx * 0.008;
+      autoRotate = false;
+    }
+
+    function onPointerUp(event) {
+      if (!dragStart) return;
+      const moved = Math.hypot(event.clientX - dragStart.x, event.clientY - dragStart.y);
+      dragStart = null;
+      if (moved < 6) pickPart(event);
+    }
+
+    function pickPart(event) {
+      const rect = renderer.domElement.getBoundingClientRect();
+      pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+      raycaster.setFromCamera(pointer, camera);
+      const hits = raycaster.intersectObjects(clickables, true);
+      if (hits.length) {
+        const key = hits[0].object.userData.partKey;
+        if (key) selectPart(key, true);
+      }
+    }
+
+    function resetView() {
+      cameraDistance = 9.2;
+      camera.position.set(0, 3.1, cameraDistance);
+      targetRotation = 0;
+      root.rotation.y = 0;
+      autoRotate = false;
+      applyMode("full");
+      selectPart("leaves", false);
+    }
+
+    const quizItems = [
+      { q: "Which part takes in water from the soil?", options: ["Roots", "Flower", "Fruit"], answer: "Roots" },
+      { q: "Which part holds the plant up?", options: ["Stem", "Cloud", "Seed"], answer: "Stem" },
+      { q: "Which part can grow into a new plant?", options: ["Seed", "River", "Leaf"], answer: "Seed" }
+    ];
+    let quizIndex = 0;
+
+    function renderQuiz() {
+      const item = quizItems[quizIndex];
+      document.getElementById("quizQuestion").textContent = item.q;
+      const options = document.getElementById("quizOptions");
+      options.innerHTML = "";
+      item.options.forEach((option) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = option;
+        btn.addEventListener("click", () => {
+          const feedback = document.getElementById("quizFeedback");
+          if (option === item.answer) {
+            feedback.textContent = "Great job!";
+            quizIndex = (quizIndex + 1) % quizItems.length;
+            setTimeout(() => {
+              feedback.textContent = "";
+              renderQuiz();
+            }, 900);
+          } else {
+            feedback.textContent = "Try again!";
+          }
+        });
+        options.appendChild(btn);
+      });
+    }
+
+    function resize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      applyResponsiveCamera();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    function applyResponsiveCamera() {
+      if (window.innerWidth <= 520) {
+        cameraDistance = Math.max(cameraDistance, 11.2);
+        camera.position.set(0, 2.45, cameraDistance);
+      } else if (window.innerWidth <= 860) {
+        cameraDistance = Math.max(cameraDistance, 10.2);
+        camera.position.set(0, 2.75, cameraDistance);
+      }
+    }
+
+    function animate(timeMs) {
+      requestAnimationFrame(animate);
+      const time = timeMs * 0.001;
+      if (playing) {
+        if (autoRotate) targetRotation += 0.004;
+      }
+      root.rotation.y += (targetRotation - root.rotation.y) * 0.08;
+      updateWaterDots(playing ? time : 0);
+      sunRays.forEach((ray, i) => {
+        ray.scale.y = 1 + Math.sin(time * 2 + i) * 0.12;
+      });
+      highlightRing.children.forEach(ring => ring.lookAt(camera.position));
+      updateLabels();
+      renderer.render(scene, camera);
+    }
+
+    createLights();
+    createGround();
+    createPlant();
+    if (useLocalPlantFile) hideCustomPlantVisuals();
+    if (!useLocalPlantFile) createVisibleRootDisplay();
+    if (useLocalPlantFile) loadLocalPlantModel();
+    if (!useLocalPlantFile) createWaterAndSun();
+    createLabels();
+    document.querySelectorAll(".system-marker").forEach((el) => {
+      el.addEventListener("pointerdown", (event) => startMarkerDrag(event, el.dataset.marker));
+    });
+    applyMarkerPositions();
+    applyResponsiveCamera();
+    renderQuiz();
+    applyMode("water");
+    selectPart("water", false);
+
+    canvas.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("pointermove", (event) => {
+      if (markerDrag) {
+        moveMarkerDrag(event);
+        return;
+      }
+      if (labelDrag) {
+        moveLabelDrag(event);
+        return;
+      }
+      onPointerMove(event);
+    });
+    window.addEventListener("pointerup", (event) => {
+      if (markerDrag) {
+        stopMarkerDrag();
+        return;
+      }
+      if (labelDrag) {
+        stopLabelDrag();
+        return;
+      }
+      onPointerUp(event);
+    });
+    window.addEventListener("resize", resize);
+
+    document.querySelectorAll(".mode-btn").forEach(btn => {
+      btn.addEventListener("click", () => applyMode(btn.dataset.mode));
+    });
+
+    document.getElementById("playPause").addEventListener("click", (event) => {
+      playing = !playing;
+      event.currentTarget.textContent = playing ? "Pause" : "Play";
+    });
+
+    document.getElementById("resetView").addEventListener("click", resetView);
+
+    document.getElementById("rotateView").addEventListener("click", () => {
+      autoRotate = !autoRotate;
+      document.getElementById("rotateView").classList.toggle("active", autoRotate);
+    });
+
+    document.getElementById("zoomIn").addEventListener("click", () => {
+      cameraDistance = Math.max(6.5, cameraDistance - 0.7);
+      camera.position.z = cameraDistance;
+    });
+
+    document.getElementById("zoomOut").addEventListener("click", () => {
+      cameraDistance = Math.min(12, cameraDistance + 0.7);
+      camera.position.z = cameraDistance;
+    });
+
+    document.getElementById("closePopup").addEventListener("click", () => {
+      document.getElementById("popup").classList.remove("show");
+    });
+
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") document.getElementById("popup").classList.remove("show");
+    });
+
+    requestAnimationFrame(animate);
+  </script>
+</body>
+</html>

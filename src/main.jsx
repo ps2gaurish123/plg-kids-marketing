@@ -32,6 +32,7 @@ const contactMailto =
 
 const navLinks = [
   ['Home', '#home'],
+  ['Product', '/products'],
   ['Features', '#features'],
   ['Lessons', '#lessons'],
   ['Pricing', '#pricing'],
@@ -146,7 +147,7 @@ const policyPages = {
       'PLG Kids is designed as a safe, parent-supervised learning app for young children. We take child privacy and safety seriously.',
     meta: [
       'App Name: PLG Kids',
-      'Website: https://marketing.plg-kids.com/',
+      'Website: https://plg-kids.com/',
       'Company: Divvyup and Grow Private Limited',
       'Contact Email: divvyupandgrow@gmail.com',
       'Address: A04, Phoenix Plaza, Alt Ferra, Dangui Colony, Mapusa, Goa 403507',
@@ -172,7 +173,7 @@ const policyPages = {
       'These Terms of Service apply to your use of PLG Kids, including our website, app, lessons, learning activities, subscriptions, and related services.',
     meta: [
       'App Name: PLG Kids',
-      'Website: https://marketing.plg-kids.com/',
+      'Website: https://plg-kids.com/',
       'Company: Divvyup and Grow Private Limited',
       'Contact Email: divvyupandgrow@gmail.com',
       'Address: A04, Phoenix Plaza, Alt Ferra, Dangui Colony, Mapusa, Goa 403507',
@@ -199,7 +200,7 @@ const policyPages = {
       'PLG Kids is built for children and parents. We want parents to feel safe and confident when purchasing a plan.',
     meta: [
       'App Name: PLG Kids',
-      'Website: https://marketing.plg-kids.com/',
+      'Website: https://plg-kids.com/',
       'Company: Divvyup and Grow Private Limited',
       'Contact Email: divvyupandgrow@gmail.com',
       'Address: A04, Phoenix Plaza, Alt Ferra, Dangui Colony, Mapusa, Goa 403507',
@@ -531,7 +532,7 @@ function Pricing() {
             <strong>{price}</strong>
             <p>{note}</p>
             {items.map((item) => <span className="plan-item" key={item}><Check size={16} /> {item}</span>)}
-            <a className={index === 2 ? 'button primary' : 'button secondary'} href="https://plg-kids.com">
+            <a className={index === 2 ? 'button primary' : 'button secondary'} href="/products">
               Start Learning
             </a>
           </article>
@@ -720,6 +721,7 @@ function HomePage() {
 function Footer() {
   const links = [
     ['Home', '/'],
+    ['Product', '/products'],
     ['Features', '/features.html'],
     ['Lessons', '/lessons.html'],
     ['Pricing', '/pricing.html'],

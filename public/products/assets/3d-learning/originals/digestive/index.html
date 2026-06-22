@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Human Digestive System — Interactive 3D</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg0:#04060c; --bg1:#0a0f1c;
+    --panel:rgba(14,20,34,0.62); --panel-strong:rgba(12,17,30,0.82);
+    --stroke:rgba(120,170,220,0.16); --stroke-strong:rgba(130,190,240,0.30);
+    --txt:#e8eef7; --txt-dim:#9fb0c6; --txt-faint:#66789a;
+    --accent:#5fe3d0; --accent-2:#7aa2ff; --warn:#ffb15c;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:'Inter',system-ui,sans-serif;
+    background:
+      radial-gradient(1200px 800px at 70% -10%, #131c33 0%, transparent 55%),
+      radial-gradient(1000px 700px at 10% 110%, #102035 0%, transparent 55%),
+      linear-gradient(180deg, var(--bg0), var(--bg1));
+    color:var(--txt); overflow:hidden; -webkit-font-smoothing:antialiased;
+  }
+  #app{position:fixed;inset:0}
+  canvas{display:block}
+
+  .header{position:absolute;top:22px;left:26px;z-index:20;pointer-events:none;max-width:420px}
+  .header .eyebrow{font-size:11px;letter-spacing:.32em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:6px;text-shadow:0 0 18px rgba(95,227,208,.5)}
+  .header h1{font-size:26px;font-weight:800;line-height:1.08;letter-spacing:-.01em;background:linear-gradient(90deg,#fff,#a9c6ff 60%,#5fe3d0);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .header p{font-size:13px;color:var(--txt-dim);margin-top:7px;line-height:1.5}
+
+  .glass{background:var(--panel);border:1px solid var(--stroke);border-radius:18px;backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);box-shadow:0 20px 60px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.05)}
+
+  .deck{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);z-index:20;width:min(960px,calc(100% - 40px));padding:16px 22px 18px}
+  .deck-row{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+  .seg{display:flex;gap:6px;background:rgba(0,0,0,.25);border:1px solid var(--stroke);padding:5px;border-radius:13px}
+  .seg button{border:0;background:transparent;color:var(--txt-dim);font-family:inherit;font-size:12px;font-weight:600;padding:8px 14px;border-radius:9px;cursor:pointer;transition:.25s;white-space:nowrap}
+  .seg button:hover{color:var(--txt)}
+  .seg button.active{background:linear-gradient(180deg,rgba(95,227,208,.22),rgba(122,162,255,.16));color:#fff;box-shadow:inset 0 0 0 1px var(--stroke-strong)}
+
+  .iconbtn{width:42px;height:42px;display:grid;place-items:center;border-radius:12px;border:1px solid var(--stroke);background:rgba(0,0,0,.22);color:var(--txt);cursor:pointer;transition:.2s;flex:none}
+  .iconbtn:hover{border-color:var(--stroke-strong);color:var(--accent);transform:translateY(-1px)}
+  .iconbtn.on{background:linear-gradient(180deg,rgba(95,227,208,.22),rgba(122,162,255,.14));color:#fff;border-color:var(--stroke-strong)}
+  .iconbtn svg{width:18px;height:18px}
+
+  .slider-wrap{flex:1 1 280px;min-width:240px}
+  .slider-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
+  .slider-head .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--txt-faint);font-weight:600}
+  .slider-head .val{font-size:12px;color:var(--accent);font-weight:700;letter-spacing:.04em}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:6px;outline:none;background:linear-gradient(90deg,#5fe3d0 0%,#5fe3d0 40%,#ffb15c 40%,#ffb15c 70%,#ff6fae 70%,#ff6fae 100%)}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#cfe9ff 60%,#7aa2ff);border:2px solid #0b1322;cursor:grab;box-shadow:0 4px 16px rgba(95,227,208,.6),0 0 0 4px rgba(95,227,208,.12)}
+  input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#cfe9ff 60%,#7aa2ff);border:2px solid #0b1322;cursor:grab;box-shadow:0 4px 16px rgba(95,227,208,.6)}
+  .slider-ticks{display:flex;justify-content:space-between;margin-top:8px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--txt-faint);font-weight:600}
+
+  .stage{position:absolute;top:22px;left:50%;transform:translateX(-50%);z-index:20;padding:10px 18px;display:flex;align-items:center;gap:12px;border-radius:999px;pointer-events:none;opacity:0;transition:opacity .4s, transform .4s}
+  .stage.show{opacity:1}
+  .stage .dot{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 14px var(--accent)}
+  .stage .txt{font-size:13px;font-weight:600;letter-spacing:.02em}
+  .stage .sub{font-size:11px;color:var(--txt-dim)}
+
+  .info{position:absolute;top:88px;right:22px;z-index:20;width:312px;padding:20px 20px 18px;opacity:0;transform:translateX(14px);transition:opacity .35s, transform .35s;pointer-events:none}
+  .info.show{opacity:1;transform:none;pointer-events:auto}
+  .info .swatch{display:inline-block;width:14px;height:14px;border-radius:5px;margin-right:9px;vertical-align:-2px;box-shadow:0 0 16px currentColor}
+  .info h2{font-size:19px;font-weight:700;letter-spacing:-.01em;display:flex;align-items:center}
+  .info .tag{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--txt-faint);margin-top:3px;font-weight:600}
+  .info .func{font-size:13px;line-height:1.55;color:var(--txt-dim);margin-top:13px}
+  .info .fact{margin-top:13px;padding-top:13px;border-top:1px solid var(--stroke);font-size:12px;line-height:1.5;color:var(--txt-faint)}
+  .info .fact b{color:var(--accent-2);font-weight:600}
+  .info .hint{margin-top:14px;font-size:11px;color:var(--txt-faint)}
+  .info .close{position:absolute;top:14px;right:14px;width:26px;height:26px;border-radius:8px;border:1px solid var(--stroke);background:transparent;color:var(--txt-dim);cursor:pointer;font-size:16px;line-height:1}
+  .info .close:hover{color:#fff;border-color:var(--stroke-strong)}
+
+  .label3d{position:absolute;transform:translate(-50%,-50%);z-index:10;pointer-events:auto;display:flex;align-items:center;gap:8px;cursor:pointer;opacity:0;transition:opacity .35s;will-change:transform;user-select:none}
+  .label3d.show{opacity:1}
+  .label3d .pin{width:11px;height:11px;border-radius:50%;box-shadow:0 0 0 4px rgba(255,255,255,.06), 0 0 16px currentColor;background:currentColor;flex:none}
+  .label3d .cap{font-size:11px;font-weight:600;letter-spacing:.04em;color:var(--txt);background:rgba(8,12,22,.6);backdrop-filter:blur(6px);border:1px solid var(--stroke);padding:4px 9px;border-radius:8px;white-space:nowrap}
+  .label3d:hover .cap{border-color:var(--stroke-strong);background:rgba(10,16,28,.85)}
+
+  .hint{position:absolute;bottom:120px;left:50%;transform:translateX(-50%);z-index:15;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--txt-faint);pointer-events:none;text-align:center}
+  .loader{position:absolute;inset:0;z-index:50;display:grid;place-items:center;background:var(--bg0);transition:opacity .6s}
+  .loader.hide{opacity:0;pointer-events:none}
+  .loader .ring{width:46px;height:46px;border-radius:50%;border:3px solid rgba(255,255,255,.1);border-top-color:var(--accent);animation:spin 1s linear infinite;margin-bottom:16px}
+  .loader .lbl{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--txt-faint)}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .switcher{position:absolute;top:22px;right:22px;z-index:25;display:flex;flex-direction:column;gap:10px;align-items:flex-end}
+  .modelpick{display:flex;gap:6px;background:var(--panel);border:1px solid var(--stroke);padding:5px;border-radius:13px;backdrop-filter:blur(18px)}
+  .modelpick button{border:0;background:transparent;color:var(--txt-dim);font-family:inherit;font-size:11px;font-weight:600;padding:7px 12px;border-radius:9px;cursor:pointer;transition:.25s;white-space:nowrap}
+  .modelpick button:hover{color:var(--txt)}
+  .modelpick button.active{background:linear-gradient(180deg,rgba(95,227,208,.22),rgba(122,162,255,.16));color:#fff}
+
+  .legend{position:absolute;right:22px;bottom:120px;z-index:18;padding:12px 14px;display:none}
+  .legend.show{display:block}
+  .legend .t{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--txt-faint);font-weight:600;margin-bottom:8px}
+  .legend .row{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--txt-dim);margin:5px 0;cursor:pointer}
+  .legend .row:hover{color:var(--txt)}
+  .legend .row i{width:10px;height:10px;border-radius:3px;display:inline-block}
+
+  @media (max-width:760px){
+    .header{max-width:55%}
+    .header h1{font-size:19px}
+    .info{width:calc(100% - 44px);top:auto;bottom:212px;right:22px}
+    .legend{display:none!important}
+    .switcher{top:auto;bottom:132px;right:22px}
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<div class="header">
+  <div class="eyebrow">Anatomy · Interactive</div>
+  <h1>Human Digestive System</h1>
+  <p>Trace the journey of food in real time. Drag to rotate, scroll to zoom, click any organ to explore.</p>
+</div>
+
+<div class="switcher">
+  <div class="modelpick" id="modelpick">
+    <button data-model="brian" class="active">Detailed Model</button>
+    <button data-model="full">Stylized Model</button>
+  </div>
+</div>
+
+<div class="stage glass" id="stage">
+  <span class="dot" id="stageDot"></span>
+  <div><div class="txt" id="stageTxt">—</div><div class="sub" id="stageSub">—</div></div>
+</div>
+
+<div class="info glass" id="info">
+  <button class="close" id="infoClose">&times;</button>
+  <h2><span class="swatch" id="iSwatch"></span><span id="iName">Organ</span></h2>
+  <div class="tag" id="iTag">PART OF THE GI TRACT</div>
+  <p class="func" id="iFunc"></p>
+  <p class="fact" id="iFact"></p>
+  <div class="hint">Drag to orbit · Scroll to zoom</div>
+</div>
+
+<div class="legend glass" id="legend"><div class="t">Color key</div></div>
+
+<div class="hint">Drag to rotate · Scroll to zoom · Click an organ</div>
+
+<div class="deck glass">
+  <div class="deck-row">
+    <div class="seg" id="seg">
+      <button data-mode="0" class="active">Full Body</button>
+      <button data-mode="1">Cutaway</button>
+      <button data-mode="2">Study</button>
+    </div>
+    <div class="slider-wrap">
+      <div class="slider-head"><span class="lbl">View Transition</span><span class="val" id="modeVal">Full Body</span></div>
+      <input type="range" id="slider" min="0" max="1000" value="0" />
+      <div class="slider-ticks"><span>Full Body</span><span>Cutaway</span><span>Study</span></div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="iconbtn on" id="playBtn" title="Play / Pause food journey">
+        <svg id="playIcon" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+      </button>
+      <button class="iconbtn" id="resetBtn" title="Reset view">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+      </button>
+      <button class="iconbtn" id="orbitBtn" title="Auto-rotate">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="12" rx="10" ry="4"/><path d="M12 2v20"/></svg>
+      </button>
+      <button class="iconbtn on" id="labelBtn" title="Toggle labels">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 13 21l-9-9V4h8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="loader" id="loader"><div style="text-align:center"><div class="ring"></div><div class="lbl" id="loadLbl">Loading model…</div></div></div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+/* =================== DATA =================== */
+const ORGANS = {
+  mouth:        { name:'Mouth',            color:'#ff7b8b', tag:'UPPER GI · ENTRY',
+    func:'Teeth mechanically grind food while saliva (with amylase) begins breaking down starches, forming a soft bolus ready to swallow.',
+    fact:'Saliva produces about <b>1–1.5 litres</b> a day.' },
+  esophagus:    { name:'Esophagus',        color:'#e8748a', tag:'TRANSPORT TUBE',
+    func:'A muscular 25 cm tube that moves the bolus from the throat to the stomach using wave-like contractions called <i>peristalsis</i>.',
+    fact:'It takes food about <b>8 seconds</b> to reach your stomach.' },
+  stomach:      { name:'Stomach',          color:'#f0a06a', tag:'CHEMICAL DIGESTION',
+    func:'A muscular sac that churns food with acid and pepsin, turning it into a semi-liquid called <i>chyme</i> over 2–4 hours.',
+    fact:'Stomach acid (HCl) is strong enough to <b>dissolve metal</b>.' },
+  liver:        { name:'Liver',            color:'#a24d4d', tag:'ACCESSORY · DETOX',
+    func:'The body\'s largest internal organ. It produces <b>bile</b> to emulsify fats, stores nutrients, and filters toxins from the blood.',
+    fact:'The liver performs over <b>500 vital functions</b>.' },
+  gallbladder:  { name:'Gallbladder',      color:'#5fbf72', tag:'ACCESSORY · BILE STORE',
+    func:'A small green pouch under the liver that stores and concentrates bile, releasing it into the small intestine when fats arrive.',
+    fact:'It can hold about <b>30–50 ml</b> of concentrated bile.' },
+  pancreas:     { name:'Pancreas',         color:'#e2c14f', tag:'ACCESSORY · ENZYMES',
+    func:'Releases a powerful cocktail of digestive enzymes (amylase, lipase, protease) and bicarbonate to neutralize stomach acid.',
+    fact:'It makes around <b>1.2 litres</b> of digestive juice daily.' },
+  smallIntestine:{name:'Small Intestine',  color:'#ef89a3', tag:'ABSORPTION HUB',
+    func:'A 6 m coiled tube where most digestion finishes. Tiny finger-like <i>villi</i> absorb nutrients into the bloodstream.',
+    fact:'Its inner surface, unfolded, covers roughly <b>250 m²</b> — a tennis court.' },
+  largeIntestine:{name:'Large Intestine',  color:'#cf8da6', tag:'WATER · WASTE',
+    func:'A 1.5 m tube (colon) that reclaims water and salts from leftover material, packing the rest into solid waste with help from gut bacteria.',
+    fact:'Houses trillions of bacteria — your <b>microbiome</b>.' },
+  rectum:       { name:'Rectum',           color:'#b67a92', tag:'STORAGE',
+    func:'A short muscular chamber that stores formed waste (faeces) until the body is ready to eliminate it.',
+    fact:'It can stretch to hold material for <b>12–24 hours</b>.' },
+  anus:         { name:'Anus',             color:'#9c6378', tag:'EXIT',
+    func:'The final sphincter of the digestive tract, controlled voluntarily to release waste from the body.',
+    fact:'Two rings of muscle keep it <b>sealed tight</b> until needed.' },
+};
+
+/* =================== THREE CORE =================== */
+const app=document.getElementById('app');
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth,innerHeight);
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.0;
+app.appendChild(renderer.domElement);
+
+const scene=new THREE.Scene();
+scene.fog=new THREE.FogExp2(0x05070e,0.05);
+
+const camera=new THREE.PerspectiveCamera(40,innerWidth/innerHeight,0.01,200);
+camera.position.set(2.6,1.0,4.2);
+
+const controls=new OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true;
+controls.dampingFactor=0.07;
+controls.minDistance=0.8;
+controls.maxDistance=12;
+controls.target.set(0,0.6,0);
+controls.autoRotate=false;          // FIX: no spinning on load
+controls.autoRotateSpeed=0.5;
+controls.maxPolarAngle=Math.PI*0.95;
+
+/* lighting + env */
+const pmrem=new THREE.PMREMGenerator(renderer);
+scene.environment=pmrem.fromScene(new RoomEnvironment(),0.04).texture;
+const hemi=new THREE.HemisphereLight(0x9fc4ff,0x140a1a,0.5); scene.add(hemi);
+const key=new THREE.DirectionalLight(0xffffff,1.1); key.position.set(4,6,5); scene.add(key);
+const fill=new THREE.DirectionalLight(0x6aa0ff,0.5); fill.position.set(-5,2,-3); scene.add(fill);
+const rim=new THREE.PointLight(0x5fe3d0,0.9,8,2); rim.position.set(-2,2,-3); scene.add(rim);
+
+const grid=new THREE.GridHelper(40,40,0x1b2740,0x101729);
+grid.position.y=-1.2; grid.material.transparent=true; grid.material.opacity=0.22; scene.add(grid);
+
+/* =================== POSTPROCESSING (real bloom) =================== */
+const composer=new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene,camera));
+const bloom=new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),0.55,0.7,0.85);
+composer.addPass(bloom);
+composer.addPass(new OutputPass());
+
+/* =================== MODEL LOADING =================== */
+const loader=new GLTFLoader();
+let currentModel=null;       // THREE.Group holding the active model
+let bodyShellMeshes=[];      // meshes flagged as the transparent body shell
+let organMeshes=[];          // solid organ meshes
+let modelReady=false;
+
+const MODELS={
+  brian:{ url:'digestive.brian.glb', hasShell:true, scale:1.0 },
+  full :{ url:'digestive_system__human_anatomy.glb', hasShell:false, scale:1.0 },
+};
+let activeKey='brian';
+
+function fitAndOrient(g){
+  // compute bounding box of all geometry, center it, scale to ~1.8 tall, orient upright
+  const box=new THREE.Box3().setFromObject(g);
+  const size=new THREE.Vector3(); box.getSize(size);
+  const center=new THREE.Vector3(); box.getCenter(center);
+  const targetH=1.8;
+  const s=targetH/Math.max(size.x,size.y,size.z);
+  // wrapper so transforms are clean
+  const wrap=new THREE.Group();
+  g.position.sub(center);
+  wrap.add(g);
+  wrap.scale.setScalar(s);
+  // recompute after scale
+  const b2=new THREE.Box3().setFromObject(wrap);
+  const c2=new THREE.Vector3(); b2.getCenter(c2);
+  wrap.position.sub(c2);
+  // now centered at origin; shift so y baseline ~ -1 (feet near grid)
+  wrap.position.y+=0;
+  return wrap;
+}
+
+function classifyMeshes(g){
+  bodyShellMeshes=[]; organMeshes=[];
+  g.traverse(o=>{
+    if(!o.isMesh) return;
+    const m=o.material;
+    const isTransparent = (m && (m.alphaMode==='BLEND' || (m.transparent===true && m.opacity<0.6)))
+                       || /skin|body|shell/i.test(o.name);
+    if(isTransparent) bodyShellMeshes.push(o);
+    else organMeshes.push(o);
+    o.userData.isShell = isTransparent;
+  });
+}
+
+function loadModel(key){
+  document.getElementById('loadLbl').textContent='Loading '+(key==='brian'?'detailed':'stylized')+' model…';
+  document.getElementById('loader').classList.remove('hide');
+  modelReady=false;
+  if(currentModel){ scene.remove(currentModel); currentModel=null; }
+  const cfg=MODELS[key];
+  loader.load(cfg.url,(gltf)=>{
+    currentModel=fitAndOrient(gltf.scene);
+    classifyMeshes(currentModel);
+    // store original materials for highlight revert
+    currentModel.traverse(o=>{ if(o.isMesh){ o.userData.origMat=o.material; o.userData.origOpacity=o.material.opacity; } });
+    // make shell fully opaque initially (Full Body) and organs hidden inside
+    setShellOpacity(1.0);
+    setOrganOpacity(0.0,false);
+    scene.add(currentModel);
+    computeOrganAnchors();
+    modelReady=true;
+    document.getElementById('loader').classList.add('hide');
+    applyView();
+  },(ev)=>{ /* progress */ },(err)=>{
+    console.error(err);
+    document.getElementById('loadLbl').textContent='Failed to load model — check file exists';
+  });
+}
+
+/* =================== SHELL / ORGAN OPACITY =================== */
+function setShellOpacity(op){
+  for(const m of bodyShellMeshes){
+    m.material.transparent = op<1.0;
+    m.material.opacity = op;
+    m.material.depthWrite = op>0.9;
+    m.material.needsUpdate=true;
+  }
+}
+function setOrganOpacity(op,visible){
+  for(const m of organMeshes){
+    m.material.transparent = op<1.0;
+    m.material.opacity = op;
+    m.material.visible = visible || op>0.02;
+    m.material.depthWrite = op>0.6;
+    m.material.needsUpdate=true;
+  }
+}
+
+/* =================== ORGAN ANCHORS (world-space boxes for selection/labels) =================== */
+const organAnchors={};   // key -> { center:Vector3 (world), labelOffset:Vector3 }
+function computeOrganAnchors(){
+  if(!currentModel) return;
+  const box=new THREE.Box3().setFromObject(currentModel);
+  const size=new THREE.Vector3(); box.getSize(size);
+  const mn=box.min, mx=box.max;
+  // organ regions as fractions along the body's vertical axis (top->bottom)
+  // coordinates are in model-local world space (after fitAndOrient)
+  const Y = (t)=> mn.y + (1-t)*size.y;            // t:0=top, 1=bottom
+  const X = (t)=> mn.x + t*size.x;
+  const Z = (t)=> mn.z + t*size.z;
+  const off = new THREE.Vector3(size.x*0.55, 0, size.z*0.4);
+  const anchors={
+    mouth:        new THREE.Vector3(X(0.5),Y(0.04),Z(0.5)),
+    esophagus:    new THREE.Vector3(X(0.5),Y(0.13),Z(0.5)),
+    stomach:      new THREE.Vector3(X(0.62),Y(0.28),Z(0.5)),
+    liver:        new THREE.Vector3(X(0.30),Y(0.30),Z(0.5)),
+    gallbladder:  new THREE.Vector3(X(0.30),Y(0.38),Z(0.55)),
+    pancreas:     new THREE.Vector3(X(0.50),Y(0.40),Z(0.5)),
+    smallIntestine:new THREE.Vector3(X(0.50),Y(0.58),Z(0.5)),
+    largeIntestine:new THREE.Vector3(X(0.50),Y(0.62),Z(0.5)),
+    rectum:       new THREE.Vector3(X(0.5),Y(0.90),Z(0.5)),
+    anus:         new THREE.Vector3(X(0.5),Y(0.96),Z(0.5)),
+  };
+  for(const k in anchors){
+    organAnchors[k]={ center:anchors[k].clone(),
+      labelPos: anchors[k].clone().add(new THREE.Vector3(k==='liver'||k==='gallbladder'?-off.x:off.x, 0, off.z)) };
+  }
+}
+
+/* =================== FOOD PATH (along the body axis through anchors) =================== */
+let foodCurve=null;
+function buildFoodCurve(){
+  if(!currentModel) return;
+  const order=['mouth','esophagus','stomach','smallIntestine','largeIntestine','rectum','anus'];
+  const pts=[];
+  for(const k of order){
+    const a=organAnchors[k]; if(!a) continue;
+    // add a couple of in-between points for smoothness
+    pts.push(a.center.clone());
+  }
+  // add serpentine detail for intestines
+  const si=organAnchors.smallIntestine?.center;
+  if(si){
+    const extra=[];
+    for(let i=0;i<8;i++){ extra.push(new THREE.Vector3(si.x+Math.sin(i*1.2)*0.12, si.y+i*0.0-0.0, si.z+Math.cos(i*1.2)*0.1)); }
+    // insert extra between stomach and large intestine
+  }
+  foodCurve=new THREE.CatmullRomCurve3(pts,false,'catmullrom',0.4);
+}
+const segBounds={
+  mouth:[0.00,0.04], esophagus:[0.04,0.14], stomach:[0.14,0.30],
+  smallIntestine:[0.30,0.58], largeIntestine:[0.58,0.88], rectum:[0.88,0.95], anus:[0.95,1.0]
+};
+const STAGES=[
+  {key:'mouth',         name:'Chewing & Swallowing',  sub:'Teeth grind food · saliva starts starch breakdown', color:'#ffe39a'},
+  {key:'esophagus',     name:'Swallowing',            sub:'Peristalsis pushes the bolus down',                color:'#ffd27a'},
+  {key:'stomach',       name:'Stomach Breakdown',     sub:'Acid & enzymes turn food into chyme',              color:'#ff9a5c'},
+  {key:'smallIntestine',name:'Enzymes & Absorption',  sub:'Bile + enzymes digest · villi absorb nutrients',   color:'#b6e87a'},
+  {key:'largeIntestine',name:'Water Reabsorption',    sub:'Colon reclaims water · waste solidifies',          color:'#d9a86a'},
+  {key:'rectum',        name:'Waste Storage',         sub:'Faeces held until elimination',                    color:'#c98f6a'},
+];
+function stageAt(t){ for(const s of STAGES){ const b=segBounds[s.key]; if(t>=b[0]&&t<=b[1]) return s; } return STAGES[0]; }
+
+/* =================== PARTICLES =================== */
+function makeGlowTexture(){
+  const c=document.createElement('canvas'); c.width=c.height=128;
+  const g=c.getContext('2d');
+  const grd=g.createRadialGradient(64,64,0,64,64,64);
+  grd.addColorStop(0,'rgba(255,255,255,1)'); grd.addColorStop(0.25,'rgba(255,255,255,0.85)');
+  grd.addColorStop(0.55,'rgba(255,255,255,0.25)'); grd.addColorStop(1,'rgba(255,255,255,0)');
+  g.fillStyle=grd; g.fillRect(0,0,128,128);
+  const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; return t;
+}
+const glowTex=makeGlowTexture();
+
+const FOOD_N=80;
+const foodGeo=new THREE.BufferGeometry();
+const fPos=new Float32Array(FOOD_N*3), fSize=new Float32Array(FOOD_N), fAlpha=new Float32Array(FOOD_N), fCol=new Float32Array(FOOD_N*3);
+foodGeo.setAttribute('position',new THREE.BufferAttribute(fPos,3));
+foodGeo.setAttribute('aSize',new THREE.BufferAttribute(fSize,1));
+foodGeo.setAttribute('aAlpha',new THREE.BufferAttribute(fAlpha,1));
+foodGeo.setAttribute('aColor',new THREE.BufferAttribute(fCol,3));
+const foodMat=new THREE.ShaderMaterial({
+  uniforms:{uTex:{value:glowTex},uPR:{value:renderer.getPixelRatio()}},
+  vertexShader:`attribute float aSize; attribute float aAlpha; attribute vec3 aColor;
+    varying float vAlpha; varying vec3 vColor; uniform float uPR;
+    void main(){ vAlpha=aAlpha; vColor=aColor; vec4 mv=modelViewMatrix*vec4(position,1.0);
+      gl_PointSize=aSize*uPR*(260.0/max(0.001,-mv.z)); gl_Position=projectionMatrix*mv; }`,
+  fragmentShader:`uniform sampler2D uTex; varying float vAlpha; varying vec3 vColor;
+    void main(){ float t=texture2D(uTex,gl_PointCoord).a; gl_FragColor=vec4(vColor, t*vAlpha); }`,
+  transparent:true, depthWrite:false, blending:THREE.AdditiveBlending
+});
+const foodPoints=new THREE.Points(foodGeo,foodMat); scene.add(foodPoints);
+
+let foodHead=0, foodPlaying=true;
+const SPACING=0.012, tmpV=new THREE.Vector3();
+function updateFood(dt){
+  if(!foodCurve) return;
+  if(foodPlaying){ foodHead=(foodHead+dt*0.035)%1; }
+  for(let i=0;i<FOOD_N;i++){
+    let p=foodHead-i*SPACING; if(p<0) p+=1;
+    foodCurve.getPointAt(THREE.MathUtils.clamp(p,0,1),tmpV);
+    fPos[i*3]=tmpV.x; fPos[i*3+1]=tmpV.y; fPos[i*3+2]=tmpV.z;
+    const age=i/FOOD_N; const leading=Math.max(0,1-age*1.1);
+    fSize[i]=8+leading*20; fAlpha[i]=0.12+leading*0.9;
+    const s=stageAt(p); const col=new THREE.Color(s.color);
+    fCol[i*3]=col.r; fCol[i*3+1]=col.g; fCol[i*3+2]=col.b;
+  }
+  foodGeo.attributes.position.needsUpdate=true;
+  foodGeo.attributes.aSize.needsUpdate=true;
+  foodGeo.attributes.aAlpha.needsUpdate=true;
+  foodGeo.attributes.aColor.needsUpdate=true;
+}
+
+/* =================== HTML LABELS =================== */
+const labels={}; let labelsVisible=true;
+for(const k in ORGANS){
+  const o=ORGANS[k];
+  const el=document.createElement('div'); el.className='label3d'; el.style.color=o.color;
+  el.innerHTML=`<span class="pin"></span><span class="cap">${o.name}</span>`;
+  el.addEventListener('click',()=>selectOrgan(k,true));
+  document.body.appendChild(el); labels[k]=el;
+}
+/* legend */
+const legend=document.getElementById('legend');
+for(const k in ORGANS){ const o=ORGANS[k]; const row=document.createElement('div'); row.className='row';
+  row.innerHTML=`<i style="background:${o.color};box-shadow:0 0 10px ${o.color}"></i>${o.name}`;
+  row.addEventListener('click',()=>selectOrgan(k,true)); legend.appendChild(row); }
+
+/* =================== VIEW MODE =================== */
+function clamp01(x){return Math.max(0,Math.min(1,x));}
+function smooth(a,b,t){return THREE.MathUtils.lerp(a,b,clamp01(t));}
+let viewT=0, labelAlphaMul=0;
+function applyView(){
+  if(!modelReady) return;
+  const t=viewT;
+  // FIX: widen Full Body band. 0..0.4 full body, 0.4..0.7 cutaway, 0.7..1 study
+  const shellOp  = t<0.40 ? smooth(1.0,1.0,t/0.40)
+                : t<0.70 ? smooth(1.0,0.10,(t-0.40)/0.30)
+                : smooth(0.10,0.04,(t-0.70)/0.30);
+  const organOp  = t<0.35 ? 0.0
+                : t<0.60 ? smooth(0.0,1.0,(t-0.35)/0.25)
+                : 1.0;
+  setShellOpacity(shellOp);
+  setOrganOpacity(organOp, organOp>0.02);
+  labelAlphaMul = organOp>0.35?1:0;
+  const mv=document.getElementById('modeVal');
+  if(t<0.40){mv.textContent='Full Body';setSeg(0);}
+  else if(t<0.70){mv.textContent='Cutaway';setSeg(1);}
+  else {mv.textContent='Study View';setSeg(2);}
+}
+function setSeg(i){ document.querySelectorAll('#seg button').forEach((b,idx)=>b.classList.toggle('active',idx===i)); }
+
+/* =================== ORGAN SELECTION =================== */
+const info=document.getElementById('info'); let currentOrgan=null;
+function selectOrgan(k,focus){
+  currentOrgan=k; const o=ORGANS[k];
+  document.getElementById('iName').textContent=o.name;
+  document.getElementById('iTag').textContent=o.tag;
+  document.getElementById('iFunc').innerHTML=o.func;
+  document.getElementById('iFact').innerHTML='Did you know? '+o.fact;
+  const sw=document.getElementById('iSwatch'); sw.style.background=o.color; sw.style.color=o.color;
+  info.classList.add('show');
+  // emissive highlight on organ meshes (whole-mesh tint pulse)
+  for(const m of organMeshes){
+    const base=new THREE.Color(0xffffff);
+    m.material.emissive = (k===currentOrgan) ? new THREE.Color(o.color).multiplyScalar(0.35) : new THREE.Color(0x000000);
+    m.material.emissiveIntensity = (k===currentOrgan) ? 1 : 0;
+    m.material.needsUpdate=true;
+  }
+  if(focus){
+    if(viewT<0.45){ slider.value=500; viewT=0.5; applyView(); }
+    const a=organAnchors[k]; if(a){ targetTarget.copy(a.center); }
+  }
+}
+document.getElementById('infoClose').addEventListener('click',()=>{
+  info.classList.remove('show'); currentOrgan=null;
+  for(const m of organMeshes){ m.material.emissive=new THREE.Color(0x000000); m.material.emissiveIntensity=0; m.material.needsUpdate=true; }
+});
+
+/* =================== RAYCAST =================== */
+const ray=new THREE.Raycaster(); const mouse=new THREE.Vector2();
+const dragStart=new THREE.Vector2();
+renderer.domElement.addEventListener('pointerdown',e=>{ if(e.button===0) dragStart.set(e.clientX,e.clientY); });
+renderer.domElement.addEventListener('pointerup',e=>{
+  if(Math.abs(e.clientX-dragStart.x)+Math.abs(e.clientY-dragStart.y)>6) return;
+  mouse.x=(e.clientX/innerWidth)*2-1; mouse.y=-(e.clientY/innerHeight)*2+1;
+  ray.setFromCamera(mouse,camera);
+  const hits=ray.intersectObjects(organMeshes,false);
+  if(hits.length){ pickOrganByPosition(hits[0].point); }
+});
+function pickOrganByPosition(p){
+  // find nearest anchor
+  let best=null,bd=1e9;
+  for(const k in organAnchors){ const d=organAnchors[k].center.distanceTo(p); if(d<bd){bd=d;best=k;} }
+  if(best) selectOrgan(best,true);
+}
+
+/* =================== CAMERA =================== */
+const targetTarget=controls.target.clone();
+function updateCamera(dt){ controls.target.lerp(targetTarget,1-Math.pow(0.001,dt)); }
+
+/* =================== UI =================== */
+const slider=document.getElementById('slider');
+slider.addEventListener('input',()=>{ viewT=slider.value/1000; applyView(); });
+document.querySelectorAll('#seg button').forEach((b,i)=>{
+  b.addEventListener('click',()=>{ const targets=[0,0.55,0.85]; slider.value=targets[i]*1000; viewT=targets[i]; applyView(); });
+});
+const playBtn=document.getElementById('playBtn'), playIcon=document.getElementById('playIcon');
+playBtn.addEventListener('click',()=>{ foodPlaying=!foodPlaying; playBtn.classList.toggle('on',foodPlaying);
+  playIcon.innerHTML=foodPlaying?'<rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/>':'<path d="M7 5v14l12-7z"/>'; });
+document.getElementById('resetBtn').addEventListener('click',()=>{
+  targetTarget.set(0,0.6,0); camGoal.set(2.6,1.0,4.2); tweening=true;
+});
+const orbitBtn=document.getElementById('orbitBtn');
+orbitBtn.addEventListener('click',()=>{ controls.autoRotate=!controls.autoRotate; orbitBtn.classList.toggle('on',controls.autoRotate); });
+const labelBtn=document.getElementById('labelBtn');
+labelBtn.addEventListener('click',()=>{ labelsVisible=!labelsVisible; labelBtn.classList.toggle('on',labelsVisible); });
+document.querySelectorAll('#modelpick button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    const key=b.dataset.model; if(key===activeKey) return;
+    activeKey=key;
+    document.querySelectorAll('#modelpick button').forEach(x=>x.classList.toggle('active',x.dataset.model===key));
+    loadModel(key);
+  });
+});
+let tweening=false; const camGoal=new THREE.Vector3(2.6,1.0,4.2);
+
+addEventListener('resize',()=>{ camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth,innerHeight); composer.setSize(innerWidth,innerHeight); });
+
+/* =================== STAGE PILL =================== */
+const stageEl=document.getElementById('stage'), stageDot=document.getElementById('stageDot'),
+      stageTxt=document.getElementById('stageTxt'), stageSub=document.getElementById('stageSub');
+let curStageKey=null;
+function updateStage(){
+  if(!foodCurve){ stageEl.classList.remove('show'); return; }
+  const s=stageAt(foodHead);
+  if(s.key!==curStageKey){ curStageKey=s.key; stageTxt.textContent=s.name; stageSub.textContent=s.sub; stageDot.style.background=s.color; stageDot.style.boxShadow='0 0 14px '+s.color; }
+  stageEl.classList.add('show');
+}
+
+/* =================== LABEL PROJECTION =================== */
+const projV=new THREE.Vector3();
+function projectLabels(){
+  for(const k in labels){
+    const el=labels[k];
+    if(!labelsVisible || labelAlphaMul<0.05 || !organAnchors[k]){ el.classList.remove('show'); continue; }
+    projV.copy(organAnchors[k].labelPos);
+    projV.project(camera);
+    const onScreen=projV.z<1 && projV.z>-1;
+    if(onScreen){ el.style.left=((projV.x*0.5+0.5)*innerWidth)+'px'; el.style.top=((-projV.y*0.5+0.5)*innerHeight)+'px'; el.classList.add('show'); el.style.opacity=labelAlphaMul; }
+    else el.classList.remove('show');
+  }
+}
+
+/* =================== LOOP =================== */
+const clock=new THREE.Clock();
+let legendShown=false;
+function animate(){
+  const dt=Math.min(clock.getDelta(),0.05);
+  if(tweening){ camera.position.lerp(camGoal,1-Math.pow(0.001,dt)); if(camera.position.distanceTo(camGoal)<0.06) tweening=false; }
+  updateCamera(dt); controls.update(); updateFood(dt); updateStage(); projectLabels();
+  if(!legendShown && viewT>0.45){ legend.classList.add('show'); legendShown=true; }
+  composer.render();
+  requestAnimationFrame(animate);
+}
+
+/* =================== INIT =================== */
+loadModel(activeKey);
+animate();
+</script>
+</body>
+</html>

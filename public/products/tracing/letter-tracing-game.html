@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>PLG Kids - Letter Tracing</title>
+<style>
+:root {
+  --bg: #f8f6f2;
+  --primary: #4a90d9;
+  --primary-dark: #3570b0;
+  --accent: #f5a623;
+  --success: #4caf50;
+  --danger: #e74c3c;
+  --line-red: #e8a0a0;
+  --line-blue: #a0b8e8;
+  --text: #333;
+  --text-light: #777;
+  --card: #fff;
+  --shadow: 0 4px 16px rgba(0,0,0,0.10);
+  --radius: 18px;
+  --btn-radius: 16px;
+  --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;font-family:var(--font);background:var(--bg);color:var(--text);touch-action:none;-webkit-tap-highlight-color:transparent;user-select:none}
+body{display:flex;justify-content:center;align-items:center}
+.app{width:100%;height:100%;max-width:900px;display:flex;flex-direction:column;position:relative;overflow:hidden}
+
+.screen{display:none;flex-direction:column;align-items:center;width:100%;height:100%;padding:clamp(18px,4vw,36px)}
+.screen.active{display:flex}
+
+/* HOME */
+.home-screen{justify-content:center;gap:clamp(24px,6vw,48px)}
+.home-title{font-size:clamp(3rem,8vw,4.5rem);font-weight:800;color:var(--primary);text-align:center;line-height:1.2}
+.home-subtitle{font-size:clamp(1.35rem,3vw,1.65rem);color:var(--text-light);text-align:center;margin-top:-8px}
+.home-buttons{display:flex;flex-direction:column;gap:clamp(18px,4vw,30px);width:100%;max-width:510px}
+.mode-btn{display:flex;align-items:center;justify-content:center;gap:15px;padding:clamp(24px,6vw,36px) clamp(30px,7.5vw,48px);font-size:clamp(1.65rem,4.5vw,2.1rem);font-weight:700;border:none;border-radius:var(--btn-radius);cursor:pointer;transition:transform .15s,box-shadow .15s;color:#fff;box-shadow:var(--shadow)}
+.mode-btn:active{transform:scale(0.96)}
+.mode-btn.capital{background:linear-gradient(135deg,#4a90d9,#6ab0f3)}
+.mode-btn.small{background:linear-gradient(135deg,#f5a623,#ffc658)}
+.mode-btn.numbers{background:linear-gradient(135deg,#4caf50,#81c784)}
+.mode-btn .icon{font-size:1.3em}
+
+/* LETTER SELECT */
+.select-screen{gap:clamp(15px,3.5vw,24px)}
+.select-header{display:flex;align-items:center;width:100%;gap:18px}
+.back-btn{width:66px;height:66px;border-radius:50%;border:none;background:var(--card);box-shadow:0 3px 12px rgba(0,0,0,0.10);cursor:pointer;font-size:1.95rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.select-title{font-size:clamp(1.65rem,4vw,2.25rem);font-weight:700;color:var(--primary)}
+.letter-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(clamp(66px,15vw,90px),1fr));gap:clamp(9px,2vw,15px);width:100%;overflow-y:auto;padding:6px;flex:1;align-content:start}
+.letter-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:clamp(1.8rem,5vw,2.7rem);font-weight:700;border-radius:18px;background:var(--card);box-shadow:0 3px 9px rgba(0,0,0,0.07);cursor:pointer;transition:transform .12s,background .12s;color:var(--text)}
+.letter-cell:active{transform:scale(0.92);background:#eef3fa}
+.letter-cell.done{background:#e8f5e9;color:var(--success)}
+
+/* TRACE */
+.trace-screen{gap:0;padding:0;width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center}
+.trace-top{display:flex;align-items:center;justify-content:space-between;width:min(95vw, 630px);padding:clamp(12px,3vw,21px) 12px;flex-shrink:0;margin:0 auto}
+.trace-letter-label{font-size:clamp(1.5rem,4.5vw,2rem);font-weight:700;color:var(--primary)}
+.trace-speak-btn{width:60px;height:60px;border-radius:50%;border:none;background:var(--card);box-shadow:0 3px 9px rgba(0,0,0,0.08);cursor:pointer;font-size:1.8rem}
+.trace-board-wrap{flex:1;display:flex;align-items:center;justify-content:center;width:100%;padding:0;min-height:0}
+.trace-board{width:min(95vw, 630px);aspect-ratio:300/420;max-height:72vh;position:relative;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.trace-board svg{width:100%;height:100%;display:block}
+.trace-controls{display:flex;align-items:center;justify-content:center;gap:clamp(9px,2vw,18px);padding:clamp(12px,3vw,21px) 12px;flex-shrink:0;flex-wrap:wrap;width:min(95vw, 630px);margin:0 auto}
+.ctrl-btn{min-width:66px;min-height:54px;padding:12px 20px;border:none;border-radius:var(--btn-radius);font-size:clamp(1.1rem,2.8vw,1.35rem);font-weight:600;cursor:pointer;transition:transform .12s,background .12s;display:flex;align-items:center;justify-content:center;gap:6px}
+.ctrl-btn:active{transform:scale(0.93)}
+.ctrl-btn.nav{background:#eef3fa;color:var(--primary)}
+.ctrl-btn.action{background:#fff3e0;color:var(--accent)}
+.ctrl-btn.danger{background:#fce4ec;color:var(--danger)}
+.ctrl-btn.back{background:var(--card);color:var(--text-light);box-shadow:0 2px 6px rgba(0,0,0,0.07)}
+
+/* GUIDE TOGGLE */
+.guide-toggle{display:flex;align-items:center;gap:9px;font-size:clamp(1rem,2.5vw,1.25rem);font-weight:600;color:var(--text-light)}
+.guide-switch{width:72px;height:39px;border-radius:19.5px;background:#ccc;position:relative;cursor:pointer;transition:background .25s;flex-shrink:0;border:none;padding:0}
+.guide-switch.on{background:var(--accent)}
+.guide-switch .knob{width:33px;height:33px;border-radius:50%;background:#fff;position:absolute;top:3px;left:3px;transition:left .25s;box-shadow:0 1.5px 4.5px rgba(0,0,0,0.2)}
+.guide-switch.on .knob{left:36px}
+
+/* SUCCESS OVERLAY */
+.success-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(255,255,255,0.88);z-index:20;opacity:0;pointer-events:none;transition:opacity .4s;border-radius:var(--radius);cursor:pointer}
+.success-overlay.show{opacity:1;pointer-events:auto}
+.success-overlay>*{pointer-events:none}
+.success-overlay button{pointer-events:auto}
+.success-big{font-size:clamp(4.5rem,15vw,7.5rem);font-weight:900;color:var(--success);animation:pop .5s ease}
+.success-word{font-size:clamp(1.8rem,5vw,2.7rem);font-weight:700;color:var(--text);margin:12px 0}
+.success-emoji{font-size:clamp(3.75rem,12vw,6rem);margin-bottom:18px}
+.success-sub{font-size:clamp(1.35rem,3.5vw,1.65rem);color:var(--text-light)}
+@keyframes pop{0%{transform:scale(0.3);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+
+/* CELEBRATION */
+.celebration-container{position:absolute;inset:0;pointer-events:none;z-index:25;overflow:hidden;border-radius:var(--radius)}
+.celeb-particle{position:absolute;opacity:0;will-change:transform,opacity}
+
+@keyframes confettiFall{
+  0%{opacity:1;transform:translateY(0) rotate(0deg) scale(1)}
+  25%{opacity:1}
+  100%{opacity:0;transform:translateY(var(--fall,400px)) rotate(var(--spin,720deg)) scale(0.3)}
+}
+@keyframes bubbleFloat{
+  0%{opacity:0;transform:translateY(0) scale(0.3)}
+  10%{opacity:0.85}
+  60%{opacity:0.6}
+  100%{opacity:0;transform:translateY(var(--rise,-350px)) scale(var(--endscale,1.2))}
+}
+@keyframes starBurst{
+  0%{opacity:0;transform:translate(0,0) scale(0) rotate(0deg)}
+  15%{opacity:1;transform:translate(var(--tx,0px),var(--ty,0px)) scale(1.3) rotate(90deg)}
+  40%{opacity:1;transform:translate(calc(var(--tx,0px)*1.4),calc(var(--ty,0px)*1.4)) scale(1) rotate(200deg)}
+  100%{opacity:0;transform:translate(calc(var(--tx,0px)*2.2),calc(var(--ty,0px)*2.2)) scale(0.2) rotate(var(--spin,540deg))}
+}
+@keyframes sparklePulse{
+  0%{opacity:0;transform:scale(0) rotate(0deg)}
+  20%{opacity:1;transform:scale(1.4) rotate(60deg)}
+  50%{opacity:0.8;transform:scale(0.9) rotate(150deg)}
+  75%{opacity:0.5;transform:scale(1.1) rotate(250deg)}
+  100%{opacity:0;transform:scale(0) rotate(360deg)}
+}
+@keyframes ringExpand{
+  0%{opacity:0.9;transform:scale(0.1)}
+  100%{opacity:0;transform:scale(2.5)}
+}
+@keyframes floatHeart{
+  0%{opacity:0;transform:translateY(0) scale(0.5) rotate(-10deg)}
+  15%{opacity:1}
+  100%{opacity:0;transform:translateY(var(--rise,-300px)) scale(1.1) rotate(15deg)}
+}
+@keyframes slideInBounce{
+  0%{opacity:0;transform:translateY(40px) scale(0.5)}
+  60%{opacity:1;transform:translateY(-10px) scale(1.05)}
+  100%{opacity:1;transform:translateY(0) scale(1)}
+}
+
+/* CORRECTION FLASH */
+.trace-board.flash-red{box-shadow:0 0 0 3px var(--danger),var(--shadow)}
+
+/* PROGRESS BAR */
+.progress-wrap{width:min(95vw, 630px);padding:0 12px;flex-shrink:0;margin:0 auto 12px auto}
+.progress-bar{width:100%;height:12px;background:#e8e8e8;border-radius:6px;overflow:hidden}
+.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--success),#81c784);border-radius:6px;transition:width .2s}
+
+/* GUIDE STAR */
+.guide-star{fill:var(--accent);filter:drop-shadow(0 0 6px rgba(245,166,35,0.6))}
+
+/* PULSING START DOT */
+@keyframes pulse-dot{0%,100%{r:7;opacity:1}50%{r:10;opacity:0.6}}
+.pulse-dot{animation:pulse-dot 1.2s ease-in-out infinite}
+
+/* RESPONSIVE */
+@media (orientation:landscape) and (max-height:500px){
+  .trace-board{aspect-ratio:3/2.8}
+  .trace-controls{padding:4px 12px}
+  .ctrl-btn{min-height:36px;padding:6px 10px}
+}
+@media (min-width:768px){
+  .letter-grid{grid-template-columns:repeat(9,1fr)}
+}
+@media (max-width:360px){
+  .letter-grid{grid-template-columns:repeat(5,1fr)}
+}
+
+/* Scrollbar */
+.letter-grid::-webkit-scrollbar{width:4px}
+.letter-grid::-webkit-scrollbar-thumb{background:#ccc;border-radius:2px}
+
+@media (orientation:landscape) and (max-width:900px){
+  .app{max-width:100%;max-height:100%;flex-direction:row}
+  .trace-screen{flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;width:100%;height:100%}
+  .trace-top{width:100% !important;flex:0 0 auto;margin:0 !important;padding:4px 12px !important}
+  .progress-wrap{width:100% !important;margin:0 auto 4px auto !important;padding:0 12px !important}
+  .trace-board-wrap{flex:1;min-width:200px;display:flex;justify-content:center;align-items:center}
+  .trace-board{height:68vh !important;max-height:68vh !important;width:auto !important;aspect-ratio:300/420 !important;margin:0 !important}
+  .trace-controls{width:auto !important;flex:0 0 auto;flex-direction:column !important;margin:0 !important;gap:8px !important;padding:12px !important}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- HOME SCREEN -->
+  <div id="homeScreen" class="screen home-screen active">
+    <div class="home-title">Letter Tracing</div>
+    <div class="home-subtitle">PLG Kids</div>
+    <div class="home-buttons">
+      <button class="mode-btn capital" onclick="startMode('capital')">
+        <span class="icon">A</span> Capital Letters
+      </button>
+      <button class="mode-btn small" onclick="startMode('small')">
+        <span class="icon">a</span> Small Letters
+      </button>
+      <button class="mode-btn numbers" onclick="startMode('numbers')">
+        <span class="icon">1</span> Numbers
+      </button>
+    </div>
+  </div>
+
+  <!-- LETTER SELECT SCREEN -->
+  <div id="selectScreen" class="screen select-screen">
+    <div class="select-header">
+      <button class="back-btn" onclick="goHome()">&#8592;</button>
+      <div class="select-title" id="selectTitle">Capital Letters</div>
+    </div>
+    <div class="letter-grid" id="letterGrid"></div>
+  </div>
+
+  <!-- TRACING SCREEN -->
+  <div id="traceScreen" class="screen trace-screen">
+    <div class="trace-top">
+      <button class="back-btn" onclick="goSelect()">&#8592;</button>
+      <div class="trace-letter-label" id="traceLabel">Capital A</div>
+      <div class="guide-toggle">
+        <span>Guide</span>
+        <button class="guide-switch" id="guideSwitch" onclick="toggleGuide()">
+          <span class="knob"></span>
+        </button>
+      </div>
+      <button class="trace-speak-btn" onclick="speakCurrent()">&#128266;</button>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+    <div class="trace-board-wrap">
+      <div class="trace-board" id="traceBoard">
+        <svg id="traceSvg" viewBox="0 0 300 420" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"></svg>
+        <div class="success-overlay" id="successOverlay" onclick="dismissSuccess()">
+          <div class="success-big" id="successLetter">A</div>
+          <div class="success-emoji" id="successEmoji">&#127822;</div>
+          <div class="success-word" id="successWord">Apple</div>
+          <div class="success-sub">Great job!</div>
+          <button class="ctrl-btn nav" style="margin-top:16px;font-size:1.1rem;padding:12px 28px" onclick="event.stopPropagation();nextLetter()">Next Letter &#9654;</button>
+        </div>
+        <div class="celebration-container" id="celebrationContainer"></div>
+      </div>
+    </div>
+    <div class="trace-controls">
+      <button class="ctrl-btn danger" onclick="clearTrace()">&#10006; Clear</button>
+      <button class="ctrl-btn nav" onclick="prevLetter()">&#9664; Prev</button>
+      <button class="ctrl-btn nav" onclick="nextLetter()">Next &#9654;</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================================================================
+   CONFIGURATION
+   ================================================================ */
+const CONFIG = {
+  viewBox: { w: 300, h: 420 },
+  lines: { top: 55, mid: 195, bottom: 335, descender: 390 },
+  colors: {
+    topLine: '#e8a0a0',
+    midLine: '#a0b8e8',
+    bottomLine: '#e8a0a0',
+    descLine: '#e8a0a0',
+    dottedPath: '#d0d0d0',        /* light grey dotted letter outline */
+    dottedPathActive: '#b8b8b8',  /* slightly darker for active stroke */
+    tracedStroke: '#4caf50',      /* green completed stroke */
+    correctionStroke: '#e74c3c',
+    startDot: '#f5a623',
+    guideStar: '#f5a623',
+    directionArrow: '#c0c0c0'     /* small arrows along dotted path */
+  },
+  tracing: {
+    tolerance: 24,                /* max pixels from path to count */
+    startTolerance: 30,           /* must start within this of start point */
+    continueTolerance: 35,        /* must resume within this of current progress point */
+    completionPercent: 92,        /* 92% of path length must be traced */
+    maxJumpPercent: 10            /* no progress jumps > 10% of total length */
+  },
+  animation: {
+    guideSpeed: 30,            /* higher = faster star movement */
+    starSize: 11
+  }
+};
+
+/* ================================================================
+   LETTER DATA — All 52 letters
+   Start points corrected: e.g. Capital A starts at TOP
+   ================================================================ */
+function L(letter, guideType, strokes, audioText, word, emoji) {
+  return { letter, guideType, strokes, audioText, word, emoji };
+}
+function S(path, startX, startY, endX, endY) {
+  return { path, start: {x:startX, y:startY}, end: {x:endX, y:endY} };
+}
+
+const LETTERS = {
+  capital: [
+    /* A: stroke1=top→bottom-left, stroke2=top→bottom-right, stroke3=crossbar L→R */
+    L('A','capital',[S('M 150,55 L 85,335',150,55,85,335),S('M 150,55 L 215,335',150,55,215,335),S('M 108,210 L 192,210',108,210,192,210)],'Trace capital A','Apple','🍎'),
+    L('B','capital',[S('M 90,335 L 90,55',90,335,90,55),S('M 90,55 L 170,55 Q 215,55 215,120 Q 215,195 170,195 L 90,195',90,55,90,195),S('M 90,195 L 180,195 Q 225,195 225,265 Q 225,335 180,335 L 90,335',90,195,90,335)],'Trace capital B','Ball','⚽'),
+    L('C','capital',[S('M 215,95 Q 215,55 150,55 Q 80,55 80,195 Q 80,335 150,335 Q 215,335 215,295',215,95,215,295)],'Trace capital C','Cat','🐱'),
+    L('D','capital',[S('M 90,335 L 90,55',90,335,90,55),S('M 90,55 Q 230,55 230,195 Q 230,335 90,335',90,55,90,335)],'Trace capital D','Dog','🐶'),
+    L('E','capital',[S('M 210,55 L 90,55 L 90,335 L 210,335',210,55,210,335),S('M 90,195 L 185,195',90,195,185,195)],'Trace capital E','Elephant','🐘'),
+    L('F','capital',[S('M 90,335 L 90,55 L 210,55',90,335,210,55),S('M 90,195 L 185,195',90,195,185,195)],'Trace capital F','Fish','🐟'),
+    L('G','capital',[S('M 215,95 Q 215,55 150,55 Q 80,55 80,195 Q 80,335 150,335 Q 215,335 215,240 L 155,240',215,95,155,240)],'Trace capital G','Grapes','🍇'),
+    L('H','capital',[S('M 90,335 L 90,55',90,335,90,55),S('M 210,335 L 210,55',210,335,210,55),S('M 90,195 L 210,195',90,195,210,195)],'Trace capital H','Hat','🎩'),
+    L('I','capital',[S('M 120,55 L 180,55',120,55,180,55),S('M 150,55 L 150,335',150,55,150,335),S('M 120,335 L 180,335',120,335,180,335)],'Trace capital I','Ice Cream','🍦'),
+    L('J','capital',[S('M 115,55 L 195,55',115,55,195,55),S('M 170,55 L 170,290 Q 170,340 130,340 Q 90,340 90,300',170,55,90,300)],'Trace capital J','Jug','🫙'),
+    L('K','capital',[S('M 90,335 L 90,55',90,335,90,55),S('M 210,55 L 90,200',210,55,90,200),S('M 110,215 L 215,335',110,215,215,335)],'Trace capital K','Kite','🪁'),
+    L('L','capital',[S('M 90,55 L 90,335 L 210,335',90,55,210,335)],'Trace capital L','Lion','🦁'),
+    L('M','capital',[S('M 70,335 L 70,55 L 150,270 L 230,55 L 230,335',70,335,230,335)],'Trace capital M','Moon','🌙'),
+    L('N','capital',[S('M 90,335 L 90,55',90,335,90,55),S('M 90,55 L 210,335',90,55,210,335),S('M 210,335 L 210,55',210,335,210,55)],'Trace capital N','Nest','🪺'),
+    L('O','capital',[S('M 150,55 Q 80,55 80,195 Q 80,335 150,335 Q 220,335 220,195 Q 220,55 150,55',150,55,150,55)],'Trace capital O','Orange','🍊'),
+    L('P','capital',[S('M 90,335 L 90,55',90,335,90,55),S('M 90,55 L 180,55 Q 220,55 220,125 Q 220,195 180,195 L 90,195',90,55,90,195)],'Trace capital P','Penguin','🐧'),
+    L('Q','capital',[S('M 150,55 Q 80,55 80,195 Q 80,335 150,335 Q 220,335 220,195 Q 220,55 150,55',150,55,150,55),S('M 175,265 L 225,340',175,265,225,340)],'Trace capital Q','Queen','👸'),
+    L('R','capital',[S('M 90,335 L 90,55',90,335,90,55),S('M 90,55 L 180,55 Q 220,55 220,125 Q 220,195 180,195 L 90,195',90,55,90,195),S('M 130,195 L 220,335',130,195,220,335)],'Trace capital R','Rainbow','🌈'),
+    L('S','capital',[S('M 210,90 Q 210,55 150,55 Q 85,55 85,125 Q 85,195 150,195 Q 215,195 215,265 Q 215,335 150,335 Q 90,335 90,300',210,90,90,300)],'Trace capital S','Sun','☀️'),
+    L('T','capital',[S('M 70,55 L 230,55',70,55,230,55),S('M 150,55 L 150,335',150,55,150,335)],'Trace capital T','Tree','🌳'),
+    L('U','capital',[S('M 90,55 L 90,260 Q 90,340 150,340 Q 210,340 210,260 L 210,55',90,55,210,55)],'Trace capital U','Umbrella','☂️'),
+    L('V','capital',[S('M 80,55 L 150,335 L 220,55',80,55,220,55)],'Trace capital V','Violin','🎻'),
+    L('W','capital',[S('M 60,55 L 110,335 L 150,165 L 190,335 L 240,55',60,55,240,55)],'Trace capital W','Watermelon','🍉'),
+    L('X','capital',[S('M 85,55 L 215,335',85,55,215,335),S('M 215,55 L 85,335',215,55,85,335)],'Trace capital X','Xylophone','🎵'),
+    L('Y','capital',[S('M 80,55 L 150,195',80,55,150,195),S('M 220,55 L 150,195',220,55,150,195),S('M 150,195 L 150,335',150,195,150,335)],'Trace capital Y','Yacht','🚤'),
+    L('Z','capital',[S('M 85,55 L 215,55 L 85,335 L 215,335',85,55,215,335)],'Trace capital Z','Zebra','🦓')
+  ],
+  numbers: [
+    /* 0: oval */
+    L('0','capital',[S('M 150,55 Q 80,55 80,195 Q 80,335 150,335 Q 220,335 220,195 Q 220,55 150,55',150,55,150,55)],'Trace zero','Zero','🍩'),
+    /* 1: hook + vertical */
+    L('1','capital',[S('M 118,95 L 150,55 L 150,335',118,95,150,335)],'Trace one','One','☝️'),
+    /* 2: curve + diagonal + base */
+    L('2','capital',[S('M 90,130 Q 90,55 150,55 Q 220,55 220,130 Q 220,200 90,335 L 220,335',90,130,220,335)],'Trace two','Two','✌️'),
+    /* 3: ONE continuous stroke, start top-left, bumps open RIGHT */
+    L('3','capital',[S('M 95,95 Q 95,55 150,55 Q 225,55 225,125 Q 225,195 150,195 Q 225,195 225,265 Q 225,335 150,335 Q 95,335 95,295',95,95,95,295)],'Trace three','Three','🍦'),
+    /* 4: triangle + vertical */
+    L('4','capital',[S('M 180,55 L 85,235 L 215,235',180,55,215,235),S('M 180,55 L 180,335',180,55,180,335)],'Trace four','Four','🍀'),
+    /* 5: stroke 1: top bar L to R; stroke 2: stem down + belly loop */
+    L('5','capital',[S('M 110,55 L 190,55',110,55,190,55),S('M 110,55 L 110,175 Q 190,175 190,250 Q 190,325 135,325 Q 95,325 95,290',110,55,95,290)],'Trace five','Five','✋'),
+    /* 6: standard spiral loop starting top-right */
+    L('6','capital',[S('M 190,75 Q 90,75 90,220 Q 90,335 150,335 Q 210,335 210,250 Q 210,175 150,175 Q 90,175 90,250',190,75,90,250)],'Trace six','Six','🎲'),
+    /* 7: top bar + diagonal */
+    L('7','capital',[S('M 85,55 L 215,55 L 130,335',85,55,130,335)],'Trace seven','Seven','🌈'),
+    /* 8: figure-8 */
+    L('8','capital',[S('M 150,195 Q 85,195 85,125 Q 85,55 150,55 Q 215,55 215,125 Q 215,195 150,195 Q 85,195 85,265 Q 85,335 150,335 Q 215,335 215,265 Q 215,195 150,195',150,195,150,195)],'Trace eight','Eight','🕷️'),
+    /* 9: top loop counter-clockwise starting right + straight tail on right */
+    L('9','capital',[S('M 190,125 Q 190,55 140,55 Q 90,55 90,125 Q 90,195 140,195 Q 190,195 190,125 L 190,335',190,125,190,335)],'Trace nine','Nine','🎈')
+  ],
+  small: [
+    L('a','small-normal',[S('M 168,218 Q 168,195 135,195 Q 95,195 95,265 Q 95,335 135,335 Q 168,335 168,265',168,218,168,265),S('M 168,218 L 168,335',168,218,168,335)],'Trace small a','Apple','🍎'),
+    L('b','small-tall',[S('M 100,55 L 100,335',100,55,100,335),S('M 100,195 Q 190,195 190,265 Q 190,335 140,335 Q 100,335 100,335',100,195,100,335)],'Trace small b','Ball','⚽'),
+    L('c','small-normal',[S('M 165,195 Q 100,195 100,265 Q 100,335 140,335 Q 165,335 172,320',165,195,172,320)],'Trace small c','Cat','🐱'),
+    L('d','small-tall',[S('M 175,195 Q 85,195 85,265 Q 85,335 140,335 Q 175,335 175,335',175,195,175,335),S('M 175,55 L 175,335',175,55,175,335)],'Trace small d','Dog','🐶'),
+    L('e','small-normal',[S('M 100,250 L 180,250 Q 180,195 140,195 Q 90,195 90,265 Q 90,335 140,335 Q 180,335 180,305',100,250,180,305)],'Trace small e','Egg','🥚'),
+    L('f','small-tall',[S('M 160,65 Q 160,55 140,55 Q 120,55 120,75 L 120,335',160,65,120,335),S('M 95,195 L 145,195',95,195,145,195)],'Trace small f','Fish','🐟'),
+    L('g','small-descender',[S('M 185,218 Q 185,195 145,195 Q 105,195 105,265 Q 105,335 145,335 Q 185,335 185,265',185,218,185,265),S('M 185,218 L 185,355 Q 185,390 145,390 Q 110,390 105,372',185,218,105,372)],'Trace small g','Grapes','🍇'),
+    L('h','small-tall',[S('M 100,55 L 100,335',100,55,100,335),S('M 100,210 Q 100,195 130,195 Q 170,195 170,230 L 170,335',100,210,170,335)],'Trace small h','Hat','🎩'),
+    L('i','small-normal',[S('M 140,195 L 140,335',140,195,140,335),S('M 140,165 L 140,170',140,165,140,170)],'Trace small i','Ice Cream','🍦'),
+    L('j','small-descender',[S('M 150,195 L 150,360 Q 150,390 128,390 Q 105,390 100,372',150,195,100,372),S('M 150,165 L 150,170',150,165,150,170)],'Trace small j','Jug','🫙'),
+    L('k','small-normal',[S('M 125,195 L 125,335',125,195,125,335),S('M 125,265 L 175,195',125,265,175,195),S('M 125,265 L 175,335',125,265,175,335)],'Trace small k','Kite','🪁'),
+    L('l','small-tall',[S('M 150,55 L 150,335',150,55,150,335)],'Trace small l','Lion','🦁'),
+    L('m','small-normal',[S('M 80,195 L 80,335',80,195,80,335),S('M 80,230 Q 80,195 110,195 Q 130,195 130,230 L 130,335',80,230,130,335),S('M 130,230 Q 130,195 155,195 Q 180,195 180,230 L 180,335',130,230,180,335)],'Trace small m','Moon','🌙'),
+    L('n','small-normal',[S('M 90,195 L 90,335',90,195,90,335),S('M 90,230 Q 90,195 120,195 Q 150,195 150,230 L 150,335',90,230,150,335)],'Trace small n','Nest','🪺'),
+    L('o','small-normal',[S('M 140,195 Q 95,195 95,265 Q 95,335 140,335 Q 185,335 185,265 Q 185,195 140,195',140,195,140,195)],'Trace small o','Orange','🍊'),
+    L('p','small-descender',[S('M 110,195 L 110,390',110,195,110,390),S('M 110,195 Q 185,195 185,265 Q 185,335 145,335 Q 110,335 110,335',110,195,110,335)],'Trace small p','Penguin','🐧'),
+    L('q','small-descender',[S('M 175,195 Q 90,195 90,265 Q 90,335 140,335 Q 180,335 180,270',175,195,180,270),S('M 180,195 L 180,365 Q 180,390 155,390 Q 135,390 130,375',180,195,130,375)],'Trace small q','Queen','👸'),
+    L('r','small-normal',[S('M 110,195 L 110,335',110,195,110,335),S('M 110,230 Q 110,195 135,195 Q 160,195 165,210',110,230,165,210)],'Trace small r','Rainbow','🌈'),
+    L('s','small-normal',[S('M 162,205 Q 162,195 138,195 Q 105,195 105,225 Q 105,260 138,260 Q 165,260 165,295 Q 165,335 132,335 Q 108,335 100,320',162,205,100,320)],'Trace small s','Sun','☀️'),
+    L('t','small-tall',[S('M 140,75 L 140,310 Q 140,335 155,335 Q 170,335 170,320',140,75,170,320),S('M 110,210 L 170,210',110,210,170,210)],'Trace small t','Tree','🌳'),
+    L('u','small-normal',[S('M 95,195 L 95,265 Q 95,335 130,335 Q 165,335 165,265 L 165,195',95,195,165,195),S('M 165,195 L 165,335',165,195,165,335)],'Trace small u','Umbrella','☂️'),
+    L('v','small-normal',[S('M 95,195 L 130,335 L 165,195',95,195,165,195)],'Trace small v','Violin','🎻'),
+    L('w','small-normal',[S('M 80,195 L 110,335 L 135,235 L 160,335 L 190,195',80,195,190,195)],'Trace small w','Watermelon','🍉'),
+    L('x','small-normal',[S('M 100,195 L 165,335',100,195,165,335),S('M 165,195 L 100,335',165,195,100,335)],'Trace small x','Xylophone','🎵'),
+    L('y','small-descender',[S('M 100,195 L 132,300',100,195,132,300),S('M 165,195 L 132,300 L 108,390',165,195,108,390)],'Trace small y','Yacht','🚤'),
+    L('z','small-normal',[S('M 100,195 L 165,195 L 100,335 L 165,335',100,195,165,335)],'Trace small z','Zebra','🦓')
+  ]
+};
+
+/* ================================================================
+   STATE
+   ================================================================ */
+let state = {
+  mode: null,
+  letterIndex: 0,
+  currentStroke: 0,
+  isTracing: false,
+  allStrokeComplete: false,
+  guideOn: false,            /* GUIDE TOGGLE — default OFF */
+  guideAnimId: null,
+  guideRunning: false,
+  /* Per-stroke path-length tracking */
+  strokeProgress: [],        /* array of { totalLen, currentDist, started, completed } */
+  lastSvgPoint: null,
+  correctionTimer: null,
+  completedLetters: { capital: new Set(), small: new Set(), numbers: new Set() }
+};
+
+/* ================================================================
+   SCREEN NAVIGATION
+   ================================================================ */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function goHome() { stopGuide(); showScreen('homeScreen'); }
+
+function startMode(mode) {
+  state.mode = mode;
+  const titles = { capital: 'Capital Letters', small: 'Small Letters', numbers: 'Numbers' };
+  document.getElementById('selectTitle').textContent = titles[mode] || 'Letters';
+  buildLetterGrid();
+  showScreen('selectScreen');
+}
+
+function goSelect() { stopGuide(); buildLetterGrid(); showScreen('selectScreen'); }
+
+function buildLetterGrid() {
+  const grid = document.getElementById('letterGrid');
+  grid.innerHTML = '';
+  LETTERS[state.mode].forEach((ld, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'letter-cell' + (state.completedLetters[state.mode].has(i) ? ' done' : '');
+    cell.textContent = ld.letter;
+    cell.addEventListener('click', () => openTrace(i));
+    grid.appendChild(cell);
+  });
+}
+
+function openTrace(index) {
+  state.letterIndex = index;
+  showScreen('traceScreen');
+  renderTrace();
+}
+
+function prevLetter() {
+  stopGuide();
+  const total = LETTERS[state.mode].length;
+  state.letterIndex = (state.letterIndex - 1 + total) % total;
+  renderTrace();
+}
+
+function nextLetter() {
+  stopGuide();
+  const total = LETTERS[state.mode].length;
+  state.letterIndex = (state.letterIndex + 1) % total;
+  renderTrace();
+}
+
+/* ================================================================
+   GUIDE TOGGLE
+   ================================================================ */
+function toggleGuide() {
+  state.guideOn = !state.guideOn;
+  const sw = document.getElementById('guideSwitch');
+  if (state.guideOn) {
+    sw.classList.add('on');
+    /* Play guide for current stroke */
+    playGuide();
+  } else {
+    sw.classList.remove('on');
+    stopGuide();
+  }
+}
+
+/* ================================================================
+   SVG RENDERING
+   ================================================================ */
+function renderTrace() {
+  const ld = LETTERS[state.mode][state.letterIndex];
+  state.currentStroke = 0;
+  state.isTracing = false;
+  state.allStrokeComplete = false;
+  state.lastSvgPoint = null;
+
+  /* Label */
+  const modeLabels = { capital: 'Capital', small: 'Small', numbers: '' };
+  const ml = modeLabels[state.mode] || '';
+  document.getElementById('traceLabel').textContent = (ml ? ml + ' ' : '') + ld.letter;
+
+  /* Progress */
+  document.getElementById('progressFill').style.width = '0%';
+
+  /* Hide success */
+  document.getElementById('successOverlay').classList.remove('show');
+
+  /* Reset guide switch to OFF */
+  state.guideOn = false;
+  state.guideRunning = false;
+  document.getElementById('guideSwitch').classList.remove('on');
+
+  /* Build SVG */
+  const svg = document.getElementById('traceSvg');
+  svg.innerHTML = '';
+  buildGuideLines(svg, ld);
+  buildStrokePaths(svg, ld);
+  buildTracingLayer(svg, ld);
+
+  /* Init progress tracking */
+  initStrokeProgress(ld);
+
+  /* Speak */
+  setTimeout(() => speak(ld.audioText), 300);
+
+  /* Do NOT auto-play guide — guide is OFF by default */
+}
+
+function buildGuideLines(svg, ld) {
+  const ln = CONFIG.lines;
+  const c = CONFIG.colors;
+  const W = CONFIG.viewBox.w;
+
+  function addLine(y, color, dash, width) {
+    const el = document.createElementNS('http://www.w3.org/2000/svg','line');
+    el.setAttribute('x1', 15); el.setAttribute('x2', W - 15);
+    el.setAttribute('y1', y); el.setAttribute('y2', y);
+    el.setAttribute('stroke', color);
+    el.setAttribute('stroke-width', width || 1.5);
+    if (dash) el.setAttribute('stroke-dasharray', dash);
+    el.setAttribute('stroke-linecap', 'round');
+    svg.appendChild(el);
+  }
+
+  addLine(ln.top, c.topLine, null, 2);
+  addLine(ln.mid, c.midLine, null, 2);
+  addLine(ln.bottom, c.bottomLine, null, 2);
+
+  if (ld.guideType === 'small-descender') {
+    addLine(ln.descender, c.descLine, '8 5', 2);
+  }
+}
+
+function buildStrokePaths(svg, ld) {
+  const gGuide = document.createElementNS('http://www.w3.org/2000/svg','g');
+  gGuide.setAttribute('id','guideGroup');
+  svg.appendChild(gGuide);
+
+  const gMarkers = document.createElementNS('http://www.w3.org/2000/svg','g');
+  gMarkers.setAttribute('id','markersGroup');
+  svg.appendChild(gMarkers);
+
+  ld.strokes.forEach((stroke, i) => {
+    /* Dotted guide path */
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d', stroke.path);
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke', i === 0 ? CONFIG.colors.dottedPathActive : CONFIG.colors.dottedPath);
+    path.setAttribute('stroke-width', '4');
+    path.setAttribute('stroke-dasharray', '8 6');
+    path.setAttribute('stroke-linecap', 'round');
+    path.setAttribute('stroke-linejoin', 'round');
+    path.setAttribute('id', 'guidePath_' + i);
+    if (i > 0) path.style.opacity = '0.35';
+    gGuide.appendChild(path);
+
+    /* Start dot with pulse */
+    const dot = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    dot.setAttribute('cx', stroke.start.x);
+    dot.setAttribute('cy', stroke.start.y);
+    dot.setAttribute('r', '7');
+    dot.setAttribute('fill', CONFIG.colors.startDot);
+    dot.setAttribute('id', 'startDot_' + i);
+    if (i === 0) dot.classList.add('pulse-dot');
+    if (i > 0) dot.style.opacity = '0.35';
+    gMarkers.appendChild(dot);
+
+    /* Number label at start */
+    const num = document.createElementNS('http://www.w3.org/2000/svg','text');
+    num.setAttribute('x', stroke.start.x);
+    num.setAttribute('y', stroke.start.y - 14);
+    num.setAttribute('text-anchor', 'middle');
+    num.setAttribute('font-size', '12');
+    num.setAttribute('font-weight', '700');
+    num.setAttribute('fill', CONFIG.colors.startDot);
+    num.setAttribute('id', 'startNum_' + i);
+    if (i === 0) num.classList.add('pulse-dot');
+    if (i > 0) num.style.opacity = '0.35';
+    num.textContent = (i + 1).toString();
+    gMarkers.appendChild(num);
+
+    /* Small direction arrows along the path */
+    createPathArrows(gMarkers, stroke, i);
+  });
+}
+
+/* Create small arrow markers at intervals along the dotted path */
+function createPathArrows(group, stroke, strokeIdx) {
+  const tmpPath = document.createElementNS('http://www.w3.org/2000/svg','path');
+  tmpPath.setAttribute('d', stroke.path);
+  /* Temporarily add to SVG to measure */
+  const svg = document.getElementById('traceSvg');
+  svg.appendChild(tmpPath);
+  const totalLen = tmpPath.getTotalLength();
+  svg.removeChild(tmpPath);
+
+  if (totalLen < 30) return; /* too short for arrows */
+
+  /* Place arrows at ~25%, 50%, 75% along the path */
+  const positions = [0.25, 0.5, 0.75];
+  positions.forEach((pct, ai) => {
+    const len = pct * totalLen;
+    const lenNext = Math.min(len + 3, totalLen);
+    /* Need temp path again */
+    const tp = document.createElementNS('http://www.w3.org/2000/svg','path');
+    tp.setAttribute('d', stroke.path);
+    svg.appendChild(tp);
+    const pt = tp.getPointAtLength(len);
+    const ptNext = tp.getPointAtLength(lenNext);
+    svg.removeChild(tp);
+
+    const dx = ptNext.x - pt.x;
+    const dy = ptNext.y - pt.y;
+    const dLen = Math.hypot(dx, dy);
+    if (dLen < 0.5) return;
+    const ux = dx / dLen;
+    const uy = dy / dLen;
+
+    /* Arrow triangle pointing in direction of path */
+    const size = 5;
+    const px = -uy; /* perpendicular */
+    const py = ux;
+    const tip = { x: pt.x + ux * size, y: pt.y + uy * size };
+    const left = { x: pt.x - ux * 2 + px * size * 0.6, y: pt.y - uy * 2 + py * size * 0.6 };
+    const right = { x: pt.x - ux * 2 - px * size * 0.6, y: pt.y - uy * 2 - py * size * 0.6 };
+
+    const tri = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+    tri.setAttribute('points', `${tip.x},${tip.y} ${left.x},${left.y} ${right.x},${right.y}`);
+    tri.setAttribute('fill', CONFIG.colors.directionArrow);
+    tri.setAttribute('id', 'pathArrow_' + strokeIdx + '_' + ai);
+    if (strokeIdx > 0) tri.style.opacity = '0.3';
+    group.appendChild(tri);
+  });
+}
+
+function buildTracingLayer(svg, ld) {
+  /* Green progress path for each stroke (revealed as child traces) */
+  const gProgress = document.createElementNS('http://www.w3.org/2000/svg','g');
+  gProgress.setAttribute('id','progressGroup');
+  svg.appendChild(gProgress);
+
+  /* For each stroke, create a hidden green path that we reveal progressively */
+  ld.strokes.forEach((stroke, i) => {
+    const pPath = document.createElementNS('http://www.w3.org/2000/svg','path');
+    pPath.setAttribute('d', stroke.path);
+    pPath.setAttribute('fill', 'none');
+    pPath.setAttribute('stroke', CONFIG.colors.tracedStroke);
+    pPath.setAttribute('stroke-width', '5');
+    pPath.setAttribute('stroke-linecap', 'round');
+    pPath.setAttribute('stroke-linejoin', 'round');
+    pPath.setAttribute('id', 'progressPath_' + i);
+    pPath.style.display = 'none'; /* hidden until tracing starts */
+    gProgress.appendChild(pPath);
+  });
+
+  /* Guide star (only visible when Guide is ON) */
+  const star = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+  star.setAttribute('id','guideStar');
+  star.setAttribute('points', starShape(0, 0, CONFIG.animation.starSize));
+  star.setAttribute('class','guide-star');
+  star.style.display = 'none';
+  svg.appendChild(star);
+
+  /* Invisible overlay for pointer events */
+  const overlay = document.createElementNS('http://www.w3.org/2000/svg','rect');
+  overlay.setAttribute('id','traceOverlay');
+  overlay.setAttribute('width', CONFIG.viewBox.w);
+  overlay.setAttribute('height', CONFIG.viewBox.h);
+  overlay.setAttribute('fill', 'transparent');
+  overlay.style.cursor = 'crosshair';
+  svg.appendChild(overlay);
+
+  overlay.addEventListener('pointerdown', onPointerDown);
+  overlay.addEventListener('pointermove', onPointerMove);
+  overlay.addEventListener('pointerup', onPointerUp);
+  overlay.addEventListener('pointerleave', onPointerUp);
+  overlay.addEventListener('pointercancel', onPointerUp);
+  overlay.addEventListener('touchstart', e => e.preventDefault(), {passive: false});
+  overlay.addEventListener('touchmove', e => e.preventDefault(), {passive: false});
+}
+
+function starShape(cx, cy, r) {
+  const pts = [];
+  for (let i = 0; i < 5; i++) {
+    const aO = (i * 72 - 90) * Math.PI / 180;
+    const aI = ((i * 72) + 36 - 90) * Math.PI / 180;
+    pts.push(`${cx + r * Math.cos(aO)},${cy + r * Math.sin(aO)}`);
+    pts.push(`${cx + r * 0.4 * Math.cos(aI)},${cy + r * 0.4 * Math.sin(aI)}`);
+  }
+  return pts.join(' ');
+}
+
+/* ================================================================
+   PATH-LENGTH BASED PROGRESS TRACKING
+   ================================================================ */
+function initStrokeProgress(ld) {
+  state.strokeProgress = ld.strokes.map((stroke, i) => {
+    const pathEl = document.getElementById('guidePath_' + i);
+    const totalLen = pathEl ? pathEl.getTotalLength() : 100;
+    return {
+      totalLen,
+      currentDist: 0,
+      started: false,
+      completed: false
+    };
+  });
+}
+
+/* ================================================================
+   SVG COORDINATE CONVERSION
+   ================================================================ */
+function convertToSVG(clientX, clientY) {
+  const svg = document.getElementById('traceSvg');
+  const pt = svg.createSVGPoint();
+  pt.x = clientX;
+  pt.y = clientY;
+  const ctm = svg.getScreenCTM();
+  if (!ctm) return { x: 0, y: 0 };
+  return pt.matrixTransform(ctm.inverse());
+}
+
+/* ================================================================
+   POINTER / TRACING LOGIC
+   ================================================================ */
+function onPointerDown(e) {
+  if (state.allStrokeComplete || state.guideRunning) return;
+  e.preventDefault();
+  try { e.target.setPointerCapture(e.pointerId); } catch(_){}
+
+  const svgP = convertToSVG(e.clientX, e.clientY);
+  const ld = LETTERS[state.mode][state.letterIndex];
+  const si = state.currentStroke;
+  const stroke = ld.strokes[si];
+  const sp = state.strokeProgress[si];
+
+  if (!sp.started) {
+    /* FIRST TOUCH: Must start near the start point */
+    const distToStart = Math.hypot(svgP.x - stroke.start.x, svgP.y - stroke.start.y);
+    if (distToStart > CONFIG.tracing.startTolerance) {
+      showCorrection();
+      state.isTracing = false;
+      return;
+    }
+    sp.started = true;
+  } else {
+    /* CONTINUING: Must touch near the current progress point on the path */
+    const pathEl = document.getElementById('guidePath_' + si);
+    if (pathEl && sp.currentDist > 0) {
+      const progressPt = pathEl.getPointAtLength(sp.currentDist);
+      const distToProgress = Math.hypot(svgP.x - progressPt.x, svgP.y - progressPt.y);
+      if (distToProgress > CONFIG.tracing.continueTolerance) {
+        showCorrection();
+        state.isTracing = false;
+        return;
+      }
+    }
+  }
+
+  /* Valid touch */
+  state.isTracing = true;
+  state.lastSvgPoint = svgP;
+
+  /* Show the progress path if not already visible */
+  const pp = document.getElementById('progressPath_' + si);
+  if (pp && pp.style.display === 'none') {
+    pp.style.display = '';
+    const total = sp.totalLen;
+    pp.setAttribute('stroke-dasharray', total);
+    /* Restore current progress */
+    pp.setAttribute('stroke-dashoffset', total - sp.currentDist);
+  }
+
+  handleTraceMove(svgP);
+}
+
+function onPointerMove(e) {
+  if (!state.isTracing || state.allStrokeComplete || state.guideRunning) return;
+  e.preventDefault();
+  const svgP = convertToSVG(e.clientX, e.clientY);
+  handleTraceMove(svgP);
+}
+
+function handleTraceMove(svgP) {
+  const ld = LETTERS[state.mode][state.letterIndex];
+  const si = state.currentStroke;
+  const sp = state.strokeProgress[si];
+  const pathEl = document.getElementById('guidePath_' + si);
+
+  if (!pathEl || sp.completed) return;
+
+  /* Find the closest point on the path */
+  const total = sp.totalLen;
+  let closestLen = 0;
+  let minDist = Infinity;
+  const step = Math.max(total / 150, 0.5);
+  for (let l = 0; l <= total; l += step) {
+    const pt = pathEl.getPointAtLength(l);
+    const d = Math.hypot(pt.x - svgP.x, pt.y - svgP.y);
+    if (d < minDist) { minDist = d; closestLen = l; }
+  }
+  /* Check end too — but skip for closed paths where start≈end to prevent instant completion */
+  const ptEnd = pathEl.getPointAtLength(total);
+  const distToEnd = Math.hypot(ptEnd.x - svgP.x, ptEnd.y - svgP.y);
+  const stroke = ld.strokes[si];
+  const isClosedPath = Math.hypot(stroke.start.x - stroke.end.x, stroke.start.y - stroke.end.y) < 20;
+  if (distToEnd < minDist && (!isClosedPath || sp.currentDist > total * 0.75)) {
+    closestLen = total;
+  }
+
+  /* CHECK: Is pointer close enough to the path? */
+  if (minDist > CONFIG.tracing.tolerance) {
+    showCorrection();
+    return;
+  }
+
+  /* CHECK: Pointer must be near the current progress point to prevent skipping/jumping */
+  if (sp.currentDist > 0) {
+    const progressPt = pathEl.getPointAtLength(sp.currentDist);
+    const distToProgress = Math.hypot(svgP.x - progressPt.x, svgP.y - progressPt.y);
+    if (distToProgress > CONFIG.tracing.continueTolerance) {
+      showCorrection();
+      return;
+    }
+  }
+
+  /* CHECK: Direction — progress must move forward, no big jumps backward */
+  const maxJump = total * (CONFIG.tracing.maxJumpPercent / 100);
+  if (closestLen > sp.currentDist) {
+    /* Forward progress — but no huge jumps */
+    const jump = closestLen - sp.currentDist;
+    if (jump > maxJump) {
+      /* Too big a jump — cap to currentDist + maxJump */
+      closestLen = sp.currentDist + maxJump;
+    }
+    sp.currentDist = closestLen;
+  }
+  /* If closestLen < currentDist, they went backward — don't reduce progress */
+
+  /* Reveal green stroke up to currentDist */
+  const pp = document.getElementById('progressPath_' + si);
+  if (pp) {
+    const offset = total - sp.currentDist;
+    pp.setAttribute('stroke-dasharray', total);
+    pp.setAttribute('stroke-dashoffset', offset);
+  }
+
+  /* Clear correction */
+  clearCorrection();
+
+  /* Update progress bar */
+  updateProgressBar();
+
+  /* Check completion: must trace at least 92% of path length */
+  const pctComplete = sp.currentDist / total;
+  if (pctComplete >= CONFIG.tracing.completionPercent / 100) {
+    completeStroke(si);
+  }
+
+  state.lastSvgPoint = svgP;
+}
+
+function onPointerUp(e) {
+  state.isTracing = false;
+}
+
+/* ================================================================
+   STROKE COMPLETION
+   ================================================================ */
+function completeStroke(strokeIdx) {
+  const ld = LETTERS[state.mode][state.letterIndex];
+  const sp = state.strokeProgress[strokeIdx];
+  sp.completed = true;
+  state.isTracing = false; /* Require lifting finger for the next stroke */
+
+  /* Fill the progress path solid green */
+  const pp = document.getElementById('progressPath_' + strokeIdx);
+  if (pp) {
+    pp.setAttribute('stroke-dasharray', 'none');
+    pp.setAttribute('stroke-dashoffset', '0');
+    pp.setAttribute('stroke-width', '5');
+  }
+
+  /* Hide start dot, number, and path arrows for this stroke */
+  const dot = document.getElementById('startDot_' + strokeIdx);
+  if (dot) dot.style.display = 'none';
+  const num = document.getElementById('startNum_' + strokeIdx);
+  if (num) num.style.display = 'none';
+  const guidePath = document.getElementById('guidePath_' + strokeIdx);
+  if (guidePath) guidePath.style.display = 'none';
+  /* Hide path arrows */
+  for (let ai = 0; ai < 3; ai++) {
+    const arrow = document.getElementById('pathArrow_' + strokeIdx + '_' + ai);
+    if (arrow) arrow.style.display = 'none';
+  }
+
+  /* Mini celebration for completing a stroke */
+  spawnMiniCelebration(strokeIdx);
+
+  /* Move to next stroke or complete letter */
+  if (strokeIdx < ld.strokes.length - 1) {
+    state.currentStroke = strokeIdx + 1;
+    /* Activate next stroke */
+    const nextGuide = document.getElementById('guidePath_' + state.currentStroke);
+    if (nextGuide) { nextGuide.style.opacity = '1'; nextGuide.setAttribute('stroke', CONFIG.colors.dottedPathActive); }
+    const nextDot = document.getElementById('startDot_' + state.currentStroke);
+    if (nextDot) { nextDot.style.opacity = '1'; nextDot.classList.add('pulse-dot'); }
+    const nextNum = document.getElementById('startNum_' + state.currentStroke);
+    if (nextNum) { nextNum.style.opacity = '1'; }
+    for (let ai = 0; ai < 3; ai++) {
+      const na = document.getElementById('pathArrow_' + state.currentStroke + '_' + ai);
+      if (na) na.style.opacity = '0.6';
+    }
+
+    /* If guide is ON, play guide for next stroke */
+    if (state.guideOn) {
+      setTimeout(() => playGuide(), 400);
+    }
+  } else {
+    /* All strokes complete! */
+    state.allStrokeComplete = true;
+    state.completedLetters[state.mode].add(state.letterIndex);
+    stopGuide();
+    showSuccess();
+
+    if (typeof isEmbedded !== 'undefined' && isEmbedded) {
+      window.parent.postMessage({
+        type: "UKG_TRACING_COMPLETE",
+        letter: ld.letter,
+        mode: state.mode
+      }, "*");
+    }
+  }
+}
+
+/* ================================================================
+   PROGRESS BAR
+   ================================================================ */
+function updateProgressBar() {
+  const ld = LETTERS[state.mode][state.letterIndex];
+  let totalLen = 0, tracedLen = 0;
+  state.strokeProgress.forEach((sp, i) => {
+    totalLen += sp.totalLen;
+    if (sp.completed) {
+      tracedLen += sp.totalLen;
+    } else {
+      tracedLen += sp.currentDist;
+    }
+  });
+  const pct = totalLen > 0 ? Math.round((tracedLen / totalLen) * 100) : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+/* ================================================================
+   CORRECTION FEEDBACK
+   ================================================================ */
+function showCorrection() {
+  const board = document.getElementById('traceBoard');
+  if (!board.classList.contains('flash-red')) {
+    board.classList.add('flash-red');
+    if (navigator.vibrate) navigator.vibrate(30);
+  }
+  clearTimeout(state.correctionTimer);
+  state.correctionTimer = setTimeout(clearCorrection, 250);
+}
+
+function clearCorrection() {
+  document.getElementById('traceBoard').classList.remove('flash-red');
+}
+
+/* ================================================================
+   GUIDE ANIMATION — Star moves along path, NO line drawn
+   ================================================================ */
+function playGuide() {
+  if (!state.guideOn) return; /* Only play if guide is ON */
+  stopGuide();
+  state.guideRunning = true;
+
+  const ld = LETTERS[state.mode][state.letterIndex];
+  const si = state.currentStroke;
+  const pathEl = document.getElementById('guidePath_' + si);
+  if (!pathEl) { state.guideRunning = false; return; }
+
+  const totalLen = pathEl.getTotalLength();
+  const star = document.getElementById('guideStar');
+
+  star.style.display = '';
+  let startTime = null;
+  const duration = totalLen / CONFIG.animation.guideSpeed * 1000;
+
+  function animate(ts) {
+    if (!startTime) startTime = ts;
+    const elapsed = ts - startTime;
+    const t = Math.min(elapsed / duration, 1);
+
+    /* Move star position — NO line drawn, just the star */
+    const currentLen = t * totalLen;
+    const pt = pathEl.getPointAtLength(currentLen);
+    star.setAttribute('points', starShape(pt.x, pt.y, CONFIG.animation.starSize));
+
+    if (t < 1) {
+      state.guideAnimId = requestAnimationFrame(animate);
+    } else {
+      /* Animation done — hide star, allow tracing */
+      star.style.display = 'none';
+      state.guideRunning = false;
+    }
+  }
+
+  state.guideAnimId = requestAnimationFrame(animate);
+}
+
+function stopGuide() {
+  if (state.guideAnimId) {
+    cancelAnimationFrame(state.guideAnimId);
+    state.guideAnimId = null;
+  }
+  state.guideRunning = false;
+  const star = document.getElementById('guideStar');
+  if (star) star.style.display = 'none';
+}
+
+function clearTrace() {
+  stopGuide();
+  const ld = LETTERS[state.mode][state.letterIndex];
+
+  state.currentStroke = 0;
+  state.isTracing = false;
+  state.allStrokeComplete = false;
+  state.lastSvgPoint = null;
+
+  /* Reset stroke progress */
+  initStrokeProgress(ld);
+
+  /* Reset all visual elements */
+  ld.strokes.forEach((stroke, i) => {
+    /* Guide path */
+    const gp = document.getElementById('guidePath_' + i);
+    if (gp) {
+      gp.style.display = '';
+      gp.setAttribute('stroke', i === 0 ? CONFIG.colors.dottedPathActive : CONFIG.colors.dottedPath);
+      gp.setAttribute('stroke-width', '4');
+      gp.setAttribute('stroke-dasharray', '8 6');
+      gp.style.opacity = i > 0 ? '0.35' : '1';
+    }
+    /* Progress path */
+    const pp = document.getElementById('progressPath_' + i);
+    if (pp) { pp.style.display = 'none'; }
+    /* Start dot */
+    const dot = document.getElementById('startDot_' + i);
+    if (dot) { dot.style.display = ''; dot.style.opacity = i > 0 ? '0.35' : '1'; dot.classList.toggle('pulse-dot', i === 0); }
+    /* Number */
+    const num = document.getElementById('startNum_' + i);
+    if (num) { num.style.display = ''; num.style.opacity = i > 0 ? '0.35' : '1'; num.classList.toggle('pulse-dot', i === 0); }
+    /* Path arrows */
+    for (let ai = 0; ai < 3; ai++) {
+      const arrow = document.getElementById('pathArrow_' + i + '_' + ai);
+      if (arrow) { arrow.style.display = ''; arrow.style.opacity = i > 0 ? '0.3' : '0.6'; }
+    }
+  });
+
+  /* Hide success */
+  document.getElementById('successOverlay').classList.remove('show');
+
+  /* Progress */
+  updateProgressBar();
+
+  /* If guide is ON, replay guide for first stroke */
+  if (state.guideOn) {
+    setTimeout(() => playGuide(), 300);
+  }
+}
+
+/* ================================================================
+   SUCCESS
+   ================================================================ */
+function dismissSuccess() {
+  document.getElementById('successOverlay').classList.remove('show');
+}
+
+function showSuccess() {
+  const ld = LETTERS[state.mode][state.letterIndex];
+  const overlay = document.getElementById('successOverlay');
+  document.getElementById('successLetter').textContent = ld.letter;
+  document.getElementById('successEmoji').textContent = ld.emoji;
+  document.getElementById('successWord').textContent = ld.word;
+  overlay.classList.add('show');
+
+  const praises = ['Great job!','Awesome!','Well done!','Fantastic!','Super!','Amazing!','You did it!','Perfect!','Brilliant!','Wonderful!'];
+  speak(praises[Math.floor(Math.random() * praises.length)]);
+
+  spawnCelebration();
+}
+
+/* ================================================================
+   CELEBRATION ANIMATION SYSTEM
+   Random mix of: confetti, bubbles, stars, sparkles, hearts, rings
+   ================================================================ */
+
+/* Mini celebration when a single stroke completes (smaller, quicker) */
+function spawnMiniCelebration(strokeIdx) {
+  const container = document.getElementById('celebrationContainer');
+  const W = container.getBoundingClientRect().width || 400;
+  const H = container.getBoundingClientRect().height || 500;
+  const palette = ['#f5a623','#4caf50','#4a90d9','#ff6b9d','#00bcd4','#8bc34a'];
+  const rCol = () => palette[Math.floor(Math.random() * palette.length)];
+
+  /* Small burst of 5-8 sparkles at the stroke endpoint */
+  const ld = LETTERS[state.mode][state.letterIndex];
+  const stroke = ld.strokes[strokeIdx];
+  const cx = (stroke.end.x / CONFIG.viewBox.w) * W;
+  const cy = (stroke.end.y / CONFIG.viewBox.h) * H;
+
+  const count = 5 + Math.floor(Math.random() * 4);
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('div');
+    p.className = 'celeb-particle';
+    const c = rCol();
+    const angle = (i / count) * Math.PI * 2 + Math.random() * 0.4;
+    const dist = 25 + Math.random() * 40;
+    const tx = Math.cos(angle) * dist;
+    const ty = Math.sin(angle) * dist;
+    const delay = Math.random() * 0.15;
+    const dur = 0.5 + Math.random() * 0.4;
+    const size = 6 + Math.random() * 8;
+    const spin = 360 + Math.random() * 360;
+    p.style.cssText = `left:${cx}px;top:${cy}px;width:${size}px;height:${size}px;clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);background:${c};filter:drop-shadow(0 0 4px ${c});animation:starBurst ${dur}s ${delay}s ease-out forwards;--tx:${tx}px;--ty:${ty}px;--spin:${spin}deg`;
+    container.appendChild(p);
+  }
+
+  /* Auto-cleanup mini particles */
+  setTimeout(() => {
+    container.querySelectorAll('.celeb-particle').forEach(el => {
+      if (el.getAnimations().every(a => a.playState === 'finished')) el.remove();
+    });
+  }, 1500);
+}
+
+function spawnCelebration() {
+  const container = document.getElementById('celebrationContainer');
+  container.innerHTML = '';
+  const W = container.getBoundingClientRect().width || 400;
+  const H = container.getBoundingClientRect().height || 500;
+
+  const palette = ['#f5a623','#4caf50','#4a90d9','#e74c3c','#9b59b6','#ff6b9d','#00bcd4','#ff9800','#8bc34a','#e91e63'];
+  const rCol = () => palette[Math.floor(Math.random() * palette.length)];
+  const rBtw = (a,b) => a + Math.random() * (b - a);
+
+  /* Pick 3-5 random effect types each time */
+  const allEffects = ['confetti','bubbles','stars','sparkles','hearts','rings'];
+  const pickCount = 3 + Math.floor(Math.random() * 3);
+  const shuffled = allEffects.sort(() => Math.random() - 0.5);
+  const chosen = shuffled.slice(0, pickCount);
+
+  /* --- CONFETTI --- */
+  if (chosen.includes('confetti')) {
+    const count = 30 + Math.floor(Math.random() * 25);
+    for (let i = 0; i < count; i++) {
+      const p = document.createElement('div');
+      p.className = 'celeb-particle';
+      const c = rCol();
+      const left = Math.random() * 100;
+      const delay = Math.random() * 0.6;
+      const dur = 1.3 + Math.random() * 1.2;
+      const size = 5 + Math.random() * 9;
+      const fallDist = H + 30;
+      const spin = 360 + Math.random() * 720;
+      const shape = Math.random();
+      let br, extra;
+      if (shape < 0.33) { br = '50%'; extra = ''; }
+      else if (shape < 0.66) { br = '2px'; extra = ''; }
+      else { br = '50% 0'; extra = ''; }
+      p.style.cssText = `left:${left}%;top:-12px;width:${size}px;height:${size*1.4}px;background:${c};border-radius:${br};animation:confettiFall ${dur}s ${delay}s ease-out forwards;--fall:${fallDist}px;--spin:${spin}deg;${extra}`;
+      container.appendChild(p);
+    }
+  }
+
+  /* --- BUBBLES --- */
+  if (chosen.includes('bubbles')) {
+    const count = 12 + Math.floor(Math.random() * 10);
+    for (let i = 0; i < count; i++) {
+      const p = document.createElement('div');
+      p.className = 'celeb-particle';
+      const c = rCol();
+      const left = 5 + Math.random() * 90;
+      const delay = Math.random() * 0.8;
+      const dur = 1.5 + Math.random() * 2;
+      const size = 12 + Math.random() * 28;
+      const riseDist = -(200 + Math.random() * 300);
+      const endScale = 0.8 + Math.random() * 0.8;
+      p.style.cssText = `left:${left}%;bottom:-40px;width:${size}px;height:${size}px;border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(255,255,255,0.7),${c}88,${c}44);box-shadow:inset -2px -2px 4px rgba(0,0,0,0.1),0 0 8px ${c}44;animation:bubbleFloat ${dur}s ${delay}s ease-out forwards;--rise:${riseDist}px;--endscale:${endScale}`;
+      container.appendChild(p);
+    }
+  }
+
+  /* --- STARS (burst from center) --- */
+  if (chosen.includes('stars')) {
+    const count = 10 + Math.floor(Math.random() * 8);
+    const cx = W * (0.3 + Math.random() * 0.4);
+    const cy = H * (0.25 + Math.random() * 0.3);
+    for (let i = 0; i < count; i++) {
+      const p = document.createElement('div');
+      p.className = 'celeb-particle';
+      const c = rCol();
+      const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.5;
+      const dist = 60 + Math.random() * 120;
+      const tx = Math.cos(angle) * dist;
+      const ty = Math.sin(angle) * dist;
+      const delay = Math.random() * 0.3;
+      const dur = 0.8 + Math.random() * 0.8;
+      const size = 10 + Math.random() * 16;
+      const spin = 360 + Math.random() * 540;
+      p.style.cssText = `left:${cx}px;top:${cy}px;width:${size}px;height:${size}px;clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);background:${c};filter:drop-shadow(0 0 4px ${c});animation:starBurst ${dur}s ${delay}s ease-out forwards;--tx:${tx}px;--ty:${ty}px;--spin:${spin}deg`;
+      container.appendChild(p);
+    }
+  }
+
+  /* --- SPARKLES --- */
+  if (chosen.includes('sparkles')) {
+    const count = 14 + Math.floor(Math.random() * 8);
+    for (let i = 0; i < count; i++) {
+      const p = document.createElement('div');
+      p.className = 'celeb-particle';
+      const c = rCol();
+      const left = 5 + Math.random() * 90;
+      const top = 5 + Math.random() * 85;
+      const delay = Math.random() * 1.2;
+      const dur = 0.7 + Math.random() * 0.9;
+      const size = 6 + Math.random() * 14;
+      p.style.cssText = `left:${left}%;top:${top}%;width:${size}px;height:${size}px;clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);background:${c};filter:drop-shadow(0 0 6px ${c});animation:sparklePulse ${dur}s ${delay}s ease-in-out forwards`;
+      container.appendChild(p);
+    }
+  }
+
+  /* --- HEARTS --- */
+  if (chosen.includes('hearts')) {
+    const count = 8 + Math.floor(Math.random() * 6);
+    for (let i = 0; i < count; i++) {
+      const p = document.createElement('div');
+      p.className = 'celeb-particle';
+      const c = rCol();
+      const left = 10 + Math.random() * 80;
+      const delay = Math.random() * 0.9;
+      const dur = 1.6 + Math.random() * 1.5;
+      const size = 14 + Math.random() * 18;
+      const riseDist = -(180 + Math.random() * 250);
+      p.style.cssText = `left:${left}%;bottom:-30px;width:${size}px;height:${size}px;background:${c};clip-path:path('M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z');transform:scale(calc(${size}/24));filter:drop-shadow(0 0 4px ${c}88);animation:floatHeart ${dur}s ${delay}s ease-out forwards;--rise:${riseDist}px`;
+      container.appendChild(p);
+    }
+  }
+
+  /* --- RINGS (expanding circles) --- */
+  if (chosen.includes('rings')) {
+    const count = 3 + Math.floor(Math.random() * 3);
+    for (let i = 0; i < count; i++) {
+      const p = document.createElement('div');
+      p.className = 'celeb-particle';
+      const c = rCol();
+      const left = 20 + Math.random() * 60;
+      const top = 15 + Math.random() * 50;
+      const delay = i * 0.35 + Math.random() * 0.2;
+      const dur = 1 + Math.random() * 0.6;
+      const size = 50 + Math.random() * 80;
+      p.style.cssText = `left:${left}%;top:${top}%;width:${size}px;height:${size}px;border:3px solid ${c};border-radius:50%;animation:ringExpand ${dur}s ${delay}s ease-out forwards;filter:drop-shadow(0 0 6px ${c}88)`;
+      container.appendChild(p);
+    }
+  }
+
+  /* Auto-cleanup after animation */
+  setTimeout(() => { container.innerHTML = ''; }, 4000);
+}
+
+/* ================================================================
+   AUDIO
+   ================================================================ */
+function speak(text) {
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.rate = 0.9;
+  utter.pitch = 1.1;
+  utter.lang = 'en-US';
+  window.speechSynthesis.speak(utter);
+}
+
+function speakCurrent() {
+  const ld = LETTERS[state.mode][state.letterIndex];
+  speak(ld.audioText);
+}
+
+/* ================================================================
+   INIT
+   ================================================================ */
+// Parse URL parameters for embedded UKG mode
+const urlParams = new URLSearchParams(window.location.search);
+const isEmbedded = urlParams.get('embedded') === 'true';
+if (isEmbedded) {
+  document.body.style.background = 'transparent';
+}
+const urlMode = urlParams.get('mode'); // capital, small, numbers
+const urlLetter = urlParams.get('letter');
+
+if (isEmbedded && urlMode && urlLetter) {
+  state.mode = urlMode;
+  const list = LETTERS[urlMode];
+  if (list) {
+    const idx = list.findIndex(ld => ld.letter.toLowerCase() === urlLetter.toLowerCase());
+    if (idx !== -1) {
+      state.letterIndex = idx;
+      // Hide back buttons inside the iframe when in embedded mode
+      document.querySelectorAll('.back-btn').forEach(btn => btn.style.display = 'none');
+      // Hide home/nav elements and go straight to trace
+      showScreen('traceScreen');
+      renderTrace();
+    } else {
+      showScreen('homeScreen');
+    }
+  } else {
+    showScreen('homeScreen');
+  }
+} else if (isEmbedded && urlMode) {
+  state.mode = urlMode;
+  document.querySelectorAll('.back-btn').forEach(btn => btn.style.display = 'none');
+  const titles = { capital: 'Capital Letters', small: 'Small Letters', numbers: 'Numbers' };
+  document.getElementById('selectTitle').textContent = titles[urlMode] || 'Letters';
+  buildLetterGrid();
+  showScreen('selectScreen');
+} else {
+  showScreen('homeScreen');
+}
+
+document.addEventListener('touchmove', e => {
+  if (e.target.closest('.letter-grid')) return;
+  e.preventDefault();
+}, { passive: false });
+
+document.addEventListener('contextmenu', e => e.preventDefault());
+</script>
+</body>
+</html>

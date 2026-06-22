@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="preconnect" href="https://assets.plg-kids.com" crossorigin>
+    <link rel="dns-prefetch" href="https://assets.plg-kids.com">
+    <link rel="canonical" href="https://plg-kids.com/products" />
+    <meta property="og:url" content="https://plg-kids.com/products" />
+    <meta name="twitter:url" content="https://plg-kids.com/products" />
+    <link rel="icon" type="image/png" href="/products/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/products/apple-touch-icon.png" />
+    <link rel="manifest" href="/products/manifest.webmanifest" />
+    <meta name="theme-color" content="#ffcf5c" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="PLG Kids" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no, viewport-fit=cover"
+    />
+    <title>PLG Kids</title>
+    <script type="module" crossorigin src="/products/assets/index-E5xcKiFi.js"></script>
+    <link rel="modulepreload" crossorigin href="/products/assets/jsx-runtime-BOY_dY-B.js">
+    <link rel="modulepreload" crossorigin href="/products/assets/preload-helper-DAU27zUx.js">
+    <link rel="modulepreload" crossorigin href="/products/assets/dist-R1droiFE.js">
+    <link rel="modulepreload" crossorigin href="/products/assets/assets-D3LuxiQq.js">
+    <link rel="stylesheet" crossorigin href="/products/assets/index-DFUJdulD.css">
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          const appBase = '/products/';
+          navigator.serviceWorker.register(`${appBase}sw.js?v=12`, {
+            scope: appBase,
+            updateViaCache: 'none'
+          }).then((reg) => {
+            reg.update();
+            console.log('ServiceWorker registration successful');
+          }).catch((err) => {
+            console.log('ServiceWorker registration failed: ', err);
+          });
+        });
+      }
+    </script>
+  </body>
+</html>

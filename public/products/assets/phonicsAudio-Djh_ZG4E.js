@@ -1,0 +1,1 @@
+var e=(e,t,n)=>{let r=e.duration/n,i=Math.max(0,(t+e.leadInSegments)*r),a=Math.min(e.duration,i+e.targetClipSeconds);return{src:e.src,start:i,end:a}},t=(t,n,r,i)=>t.targetAudioSrc?{src:t.targetAudioSrc}:t.audioSprite?t.audioSprite:e(n,r,i);export{t};
