@@ -4,14 +4,17 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "cleanUrls": true,
-  "rewrites": [
+  "routes": [
     {
-      "source": "/api/:path*",
-      "destination": "https://littlelearn-ai.vercel.app/api/:path*"
+      "src": "/api/(.*)",
+      "dest": "https://littlelearn-ai.vercel.app/api/$1"
     },
     {
-      "source": "/products/:path*",
-      "destination": "/products/index.html"
+      "handle": "filesystem"
+    },
+    {
+      "src": "/products/(.*)",
+      "dest": "/products/index.html"
     }
   ]
 }
