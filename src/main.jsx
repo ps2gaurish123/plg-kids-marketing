@@ -514,7 +514,7 @@ function Parents() {
 function Pricing() {
   const plans = [
     ['Free Trial', 'Explore PLG Kids', 'For parents who want to explore.', ['Starter lessons', 'Speaking demo', 'Parent preview']],
-    ['3-Month Plan', '₹500 / 3 months', 'Full access for one learning quarter.', ['Structured lessons', 'Speaking practice', 'Hindi and English modules', 'Progress tracking']],
+    ['3-Month Plan', '₹1000 / 3 months', 'Full access for one learning quarter.', ['Structured lessons', 'Speaking practice', 'Hindi and English modules', 'Progress tracking']],
     ['Yearly Plan', '₹3000 / year', 'Best value for families with annual learning access.', ['Everything in 3-Month Plan', 'Annual learning access', 'Stories and manners', 'Confidence practice']],
   ];
   return (
