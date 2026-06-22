@@ -11,7 +11,7 @@ require __DIR__ . '/includes/header.php';
   </section>
   <section class="section legal-copy policy-copy">
     <div class="policy-meta">
-      <span>App Name: PLG Kids</span><span>Website: https://marketing.plg-kids.com/</span><span>Company: Divvyup and Grow Private Limited</span><span>Contact Email: divvyupandgrow@gmail.com</span><span>Address: A04, Phoenix Plaza, Alt Ferra, Dangui Colony, Mapusa, Goa 403507</span>
+      <span>App Name: PLG Kids</span><span>Website: https://plg-kids.com/</span><span>Company: Divvyup and Grow Private Limited</span><span>Contact Email: divvyupandgrow@gmail.com</span><span>Address: A04, Phoenix Plaza, Alt Ferra, Dangui Colony, Mapusa, Goa 403507</span>
     </div>
     <article class="policy-section"><h2>Our Commitment to Child Safety</h2><p>We do not sell children’s personal information. We do not show targeted advertising to children. We do not knowingly allow children to publicly share personal information through the app.</p><p>PLG Kids uses learning activities, speech practice, basic progress tracking, and parent controls to support early learning.</p></article>
     <article class="policy-section"><h2>Parent Consent</h2><p>PLG Kids is intended to be used by children only with the consent and supervision of a parent or legal guardian. By creating an account, making a payment, or allowing a child to use PLG Kids, you confirm that you consent to the limited collection and use of learning-related data described in this Privacy Policy.</p></article>

@@ -11,7 +11,7 @@ require __DIR__ . '/includes/header.php';
   </section>
   <section class="section legal-copy policy-copy">
     <div class="policy-meta">
-      <span>App Name: PLG Kids</span><span>Website: https://marketing.plg-kids.com/</span><span>Company: Divvyup and Grow Private Limited</span><span>Contact Email: divvyupandgrow@gmail.com</span><span>Address: A04, Phoenix Plaza, Alt Ferra, Dangui Colony, Mapusa, Goa 403507</span>
+      <span>App Name: PLG Kids</span><span>Website: https://plg-kids.com/</span><span>Company: Divvyup and Grow Private Limited</span><span>Contact Email: divvyupandgrow@gmail.com</span><span>Address: A04, Phoenix Plaza, Alt Ferra, Dangui Colony, Mapusa, Goa 403507</span>
     </div>
     <article class="policy-section"><h2>Acceptance and Parent Responsibility</h2><p>By using PLG Kids, creating an account, starting a subscription, or allowing a child to use the app, you agree to these Terms. PLG Kids is designed for children and must be used under the supervision and consent of a parent or legal guardian.</p></article>
     <article class="policy-section"><h2>About PLG Kids</h2><p>PLG Kids provides educational content for young children, including letters, phonics, numbers, words, speaking practice, manners, daily learning, and confidence-building activities. It is not a replacement for school, therapy, medical advice, speech therapy, or psychological advice.</p></article>

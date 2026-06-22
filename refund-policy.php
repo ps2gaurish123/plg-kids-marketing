@@ -11,7 +11,7 @@ require __DIR__ . '/includes/header.php';
   </section>
   <section class="section legal-copy policy-copy">
     <div class="policy-meta">
-      <span>App Name: PLG Kids</span><span>Website: https://marketing.plg-kids.com/</span><span>Company: Divvyup and Grow Private Limited</span><span>Contact Email: divvyupandgrow@gmail.com</span><span>Address: A04, Phoenix Plaza, Alt Ferra, Dangui Colony, Mapusa, Goa 403507</span>
+      <span>App Name: PLG Kids</span><span>Website: https://plg-kids.com/</span><span>Company: Divvyup and Grow Private Limited</span><span>Contact Email: divvyupandgrow@gmail.com</span><span>Address: A04, Phoenix Plaza, Alt Ferra, Dangui Colony, Mapusa, Goa 403507</span>
     </div>
     <article class="policy-section"><h2>Free Trial and Cancellation</h2><p>If PLG Kids offers a free trial, you may cancel before the trial ends to avoid being charged. You may cancel your subscription at any time. Cancellation stops future billing, but does not automatically create a refund for the current billing period.</p></article>
     <article class="policy-section"><h2>Refund Eligibility</h2><p>You may request a refund for accidental purchase within 7 days, duplicate payment, verified technical issue from our side, wrong plan activation, or renewal mistake within 48 hours if there has been no significant use after renewal.</p></article>

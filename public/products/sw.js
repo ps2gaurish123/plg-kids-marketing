@@ -15,7 +15,7 @@ const SHELL_ASSETS = [
   "/products/assets/brand/plg-kids-square.png",
   "/products/manifest.webmanifest",
   "/products/script.js",
-  "/products/assets/index-E5xcKiFi.js",
+  "/products/assets/index-DACOgoYD.js",
   "/products/assets/index-DFUJdulD.css"
 ];
 const LESSON_ASSET_PATTERN = /\.(json|png|jpe?g|webp|svg|mp3|wav)$/i; // Excluded mp4!
